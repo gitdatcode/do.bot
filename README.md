@@ -52,7 +52,7 @@ To manually run do.bot:
 Configuration options can be passed in at run-time or can be defined via an external python script. To use during run-time, pass the name of the option with a value:
 
 ```
-python dobot.py --ports=[9000] --slack_api_token=some_api_token
+python dobot.py --ports=9000,9001,9002 --slack_api_token=some_api_token
 ```
 
 The available options are:
