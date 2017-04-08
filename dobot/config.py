@@ -6,8 +6,8 @@ from tornado.options import options, define
 define('debug', True)
 define('ports', [9911,], multiple=True, help=('A list of ports that the app'
     ' runs on'))
-define('enabled_apps', ['dobot.apps.url_verification'],
-    help=('A list of apps that are enabled and should be loaded when dobot '
+define('enabled_apps', ['dobot.apps.url_verification'], multiple=True,
+    help=('A list of apps that are enabled and should be loaded when dobot'
         ' is loaded. Each app should be a full path to the module.'))
 define('slack_api_token', 'NOTSET', help=('The api token used to communicate'
     ' with the slack server'))
