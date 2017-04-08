@@ -1,5 +1,7 @@
 import importlib
 
+from slackclient import SlackClient
+
 from tornado import web
 from tornado.escape import json_decode
 from tornado.options import options
@@ -24,6 +26,7 @@ class Application(web.Application):
             load_dobot_app(app)
 
         web.Application.__init__(self, routes, **settings)
+        self.slack = SlackClient(options.slack_api_token)
 
 
 def load_dobot_app(app_name):

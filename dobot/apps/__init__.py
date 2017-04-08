@@ -17,7 +17,8 @@ def register_event_app(event, handler):
     """
     if event in DOBOT_EVENT_APPS:
         message = ('dobot has already registered an application that handles'
-            ' the event: {}'.format(event))
+            ' the event: {} that handler: {} is trying to'
+            ' register'.format(event, str(handler)))
         raise DoBotAppExcpetion(message)
 
     DOBOT_EVENT_APPS[event] = handler
