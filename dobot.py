@@ -1,5 +1,6 @@
-from tornado import httpserver, ioloop
+import sys
 
+from tornado import httpserver, ioloop
 from tornado.options import options
 
 import dobot.config
@@ -7,6 +8,10 @@ from dobot.application import Application
 
 
 if __name__ == '__main__':
+    args = sys.argv[1:]
+
+    options.parse_command_line(args)
+
     try:
         for port in options.ports:
             application = Application()

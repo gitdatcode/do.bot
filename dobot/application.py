@@ -31,4 +31,3 @@ class Application(web.Application):
 
 def load_dobot_app(app_name):
     importlib.import_module(app_name)
-

@@ -13,13 +13,6 @@ def verifiy_url(request, body):
     """
     request.set_status = 200
     request.set_header('Content-type', 'application/x-www-form-urlencoded')
-    request.slack.api_call(
-        "chat.postMessage",
-        channel="#python",
-        text="Mark test! :tada:",
-        reply_broadcast=True,
-    )
-
     return request.write(body.get('challenge'))
 
 
