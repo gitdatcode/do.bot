@@ -11,4 +11,3 @@ def verifiy_url(request, body):
 
 
 register_event_app('url_verification', verifiy_url)
-
