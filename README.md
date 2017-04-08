@@ -92,3 +92,5 @@ register_event_app('url_verification', verifiy_url)
 ```
 
 To enable a handler, add the full package path the `enabled_apps` configuration option.
+
+> the request object will have an instance of `slackclient.SlackClient` as `request.slack`. Documentation found here: http://python-slackclient.readthedocs.io/en/latest/
