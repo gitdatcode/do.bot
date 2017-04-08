@@ -1,3 +1,5 @@
+import importlib
+
 from tornado import web
 from tornado.escape import json_decode
 from tornado.options import options
@@ -18,11 +20,12 @@ class Application(web.Application):
             (r'/event', BaseEventsAPIHandler),
         )
 
-        web.Application.__init__(self, routes, **settings)
-
         for app in options.enabled_apps:
             load_dobot_app(app)
 
+        web.Application.__init__(self, routes, **settings)
+
 
 def load_dobot_app(app_name):
-    __import__('dobot.apps', fromlist=[app_name,])
+    importlib.import_module(app_name)
+

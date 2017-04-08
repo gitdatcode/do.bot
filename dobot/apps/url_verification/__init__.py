@@ -1,3 +1,5 @@
+from tornado.escape import json_decode
+
 from .. import register_event_app
 
 
@@ -9,3 +11,4 @@ def verifiy_url(request, body):
 
 
 register_event_app('url_verification', verifiy_url)
+
