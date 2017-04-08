@@ -72,9 +72,7 @@ do.bot works by communicating intent from the Slack server to a pre-defined func
 Event handlers are simple functions that take a `tornado.web.RequestHandler` (the current web request) and a `dict` (the info sendt by Slack) to be processed. Here is the included `url_verification` handler:
 
 ```python
-from tornado.escape import json_decode
-
-from .. import register_event_app
+from dobot.apps import register_event_app
 
 
 def verifiy_url(request, body):
