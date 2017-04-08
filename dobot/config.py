@@ -11,9 +11,10 @@ define('enabled_apps', ['dobot.apps.url_verification'],
 define('slack_api_token', 'NOTSET', help=('The api token used to communicate'
     ' with the slack server'))
 
-
 # overwrite configurations with enviromental settings
-extra_config = os.path.join('home', 'dobot', 'dobot.config.py')
+define('extra_config', os.path.join('/home', 'dobot', 'dobot.config.py'),
+    help=('path to any extra configuration file used to overwrite '
+        ' settings defiend in this file'))
 
-if os.path.exists(extra_config):
-    options.parse_config_file(extra_config)
+if os.path.exists(options.extra_config):
+    options.parse_config_file(options.extra_config)
