@@ -9,6 +9,7 @@ from tornado.options import options
 import dobot.config
 from dobot.controller.home import HomeHandler
 from dobot.controller.event import BaseEventsAPIHandler
+from dobot.controller.command import CommandHandler
 
 
 class Application(web.Application):
@@ -19,7 +20,8 @@ class Application(web.Application):
         }
         routes = (
             (r'/', HomeHandler),
-            (r'/event', BaseEventsAPIHandler),
+            (r'/event/?', BaseEventsAPIHandler),
+            (r'/command/([\w\-\.]+)/?', CommandHandler),
         )
 
         for app in options.enabled_apps:

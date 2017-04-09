@@ -4,9 +4,10 @@ from ..error import DoBotAppExcpetion
 
 
 DOBOT_EVENT_APPS = {}
+DOBOT_COMMAND_APPS = {}
 
 
-def register_event_app(event, handler):
+def register_event_app(event, handler, force=False):
     """this method handles registering an app as an event-based dobot handler
 
     the handler function's signature should be:
@@ -15,7 +16,7 @@ def register_event_app(event, handler):
     ie:
         def my_handler(request, body)
     """
-    if event in DOBOT_EVENT_APPS:
+    if event in DOBOT_EVENT_APPS and not force:
         message = ('dobot has already registered an application that handles'
             ' the event: {} that handler: {} is trying to'
             ' register'.format(event, str(handler)))
@@ -30,3 +31,22 @@ def handle_event(request, event, body):
         raise DoBotAppExcpetion(message)
 
     return DOBOT_EVENT_APPS[event](request, body)
+
+
+def register_command_app(command, handler, force=False):
+    if command in DOBOT_COMMAND_APPS and not force:
+        message = ('dobot has already registered an application that handles'
+            ' the command: {} that handler: {} is trying to'
+            ' register'.format(command, str(handler)))
+        raise DoBotAppExcpetion(message)
+
+    DOBOT_COMMAND_APPS[command] = handler
+
+
+def handle_command(reqeust, command, body):
+    if command not in DOBOT_COMMAND_APPS:
+        message = ('The command: {} is not registered to dobot'.format(c
+            ommand))
+        raise DoBotAppExcpetion(message)
+
+    return DOBOT_COMMAND_APPS[command](reqeust, body)
