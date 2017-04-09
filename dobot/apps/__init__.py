@@ -43,10 +43,10 @@ def register_command_app(command, handler, force=False):
     DOBOT_COMMAND_APPS[command] = handler
 
 
-def handle_command(reqeust, command, body):
+def handle_command(reqeust, command, arguments):
     if command not in DOBOT_COMMAND_APPS:
-        message = ('The command: {} is not registered to dobot'.format(c
-            ommand))
+        message = ('The command: {} is not registered to dobot'.format(
+            command))
         raise DoBotAppExcpetion(message)
 
-    return DOBOT_COMMAND_APPS[command](reqeust, body)
+    return DOBOT_COMMAND_APPS[command](reqeust, arguments)
