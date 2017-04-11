@@ -1,0 +1,22 @@
+{
+  "name": "do.bot",
+  "version": "1.0.0",
+  "description": "does a bunch of stuff in the Slack group!",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gitdatcode/do.bot.git"
+  },
+  "author": "DatCode Community",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gitdatcode/do.bot/issues"
+  },
+  "homepage": "https://github.com/gitdatcode/do.bot#readme",
+  "dependencies": {
+    "express": "^4.15.2"
+  }
+}
