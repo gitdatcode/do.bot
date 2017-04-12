@@ -1,7 +1,32 @@
-const commandHandler = require("./base");
+let handler = {
+    'commands': {},
 
-let commandHandler.post = (request, command) => {
-  //some stuff goes here
+    'add': function(command, callback, force = false){
+        if(command in this.commands && !force){
+            //TODO: throw error that will stop node
+        }
+
+        this.commands[command] = callback;
+
+        return this;
+    },
+
+    'fire': function(command, request, response){
+        if(!(command in this.commands)){
+            
+        }
+
+        return this.commands[command](request, response);
+    }
 };
 
-module.exports = commandHandler;
+const controller = {
+    'post': (request, response) => {
+        response.send(request.params);
+    }
+}
+
+module.exports = {
+    'controller': controller,
+    'handler': handler
+};
