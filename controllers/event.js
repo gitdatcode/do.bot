@@ -1,6 +1,3 @@
-const event_controller = require("./base");
-
-
 let handler = {
     'events': {},
 
@@ -21,7 +18,7 @@ let handler = {
             response.status(404);
             response.send('The event: {} is not registed with do.bot.');
         }
-
+        
         console.info(`Firing Event: ${event}`);
 
         return this.events[event](request, response);
@@ -29,12 +26,13 @@ let handler = {
 };
 
 const controller = {
-    'post': (request, response) => {
+    'post': function(request, response){
         const body = request.body;
-
-        handler.fire(body.type);
+        
+        handler.fire(body.type, request, response);
     }
-}
+};
+
 
 module.exports = {
     'controller': controller,

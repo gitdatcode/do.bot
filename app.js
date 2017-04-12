@@ -5,13 +5,13 @@ const express = require('express'),
     path = require('path');
 
 const app = express(),
-    port = 3000;
+    port = 9911;
 
 app.use(bodyParser.json());
 app.use(function(request, response, next){
     request.slack = {}; //define slack api here
 
-    next(request, response);
+    next();
 });
 
 // load all of the apps
