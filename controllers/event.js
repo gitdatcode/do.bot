@@ -17,8 +17,9 @@ let handler = {
         if(!(event in this.events)){
             response.status(404);
             response.send('The event: {} is not registed with do.bot.');
+            return;
         }
-        
+
         console.info(`Firing Event: ${event}`);
 
         return this.events[event](request, response);
@@ -28,7 +29,7 @@ let handler = {
 const controller = {
     'post': function(request, response){
         const body = request.body;
-        
+
         handler.fire(body.type, request, response);
     }
 };

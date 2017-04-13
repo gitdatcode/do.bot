@@ -13,7 +13,8 @@ let handler = {
 
     'fire': function(command, request, response){
         if(!(command in this.commands)){
-            
+              response.status(404);
+              response.send('The command: {} is not registed with do.bot.');
         }
 
         return this.commands[command](request, response);
