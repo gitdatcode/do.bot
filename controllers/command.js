@@ -137,7 +137,7 @@ function NumberArgumentParser(commands){
 
 const controller = {
     'post': function(request, response){
-        handler.fire(request.params.comamnd, request, response);
+        handler.fire(request.params.command, request, response);
     }
 };
 

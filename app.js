@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express'),
     bodyParser = require('body-parser'),
     request = require('request'),
@@ -8,9 +10,12 @@ const express = require('express'),
     slack_web_client = new WebClient(slack_api_token);
 
 const app = express(),
-    port = 9911;
+    port = process.env.port || 9911;
 
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
 app.use(function(request, response, next){
     request.slack = slack_web_client;
 
