@@ -1,8 +1,13 @@
+/*
+  app.js
+  the entry point for the do.bot node app.
+*/
+
 require('dotenv').config();
 
 const express = require('express'),
     bodyParser = require('body-parser'),
-    request = require('request'),
+    request_module = require('request'),
     glob = require('glob'),
     path = require('path'),
     WebClient = require('@slack/client').WebClient,
@@ -18,6 +23,7 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(function(request, response, next){
     request.slack = slack_web_client;
+    request.external = request_module;
 
     next();
 });
