@@ -2,12 +2,7 @@
   this is an onboarding app, which basically means it greets new users with a quick rundown on how the Slack works
   and a nice little greeting in #general so people can show love.
 */
-
 const event = require('../controllers/event');
-const WebClient = require('@slack/client').WebClient;
-
-const token = process.env.SLACK_API_TOKEN;
-const web = new WebClient(token);
 
 const dmGreeting = "Welcome to the DatCode Slack group, we're glad you're here! Since you're new, just give a little hello in the #sayhello channel. Tell us \
 where you're from, maybe what you do or what you're working on, and what you look to learn or gain within the community.\n\n\
@@ -32,7 +27,7 @@ const welcomeMessage = (request, response) => {
   const body = request.body;
   const user = '@' + body.event.user;
 
-  web.chat.postMessage( user, dmGreeting, (err, response) => {
+  request.slack.chat.postMessage( user, dmGreeting, (err, response) => {
     if (err){
       console.log("(welcome.js : event.handler.add:web.im.open:web.chat.postMessage) Error: ", err);
     }
@@ -43,7 +38,7 @@ const welcomeMessage = (request, response) => {
   //replace 'username' in the generalGreeting with the user id
   let greeting = generalGreeting.replace(/@username/i, user);
   //post the greeting to #general
-  web.chat.postMessage('general', greeting, 'none', 'true', (err, response) => {
+  request.slack.chat.postMessage('general', greeting, 'none', 'true', (err, response) => {
     if (err){
       console.log("(welcome.js : event.handler.add:web.chat.postMessage) Error: ", err);
     }
