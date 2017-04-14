@@ -22,6 +22,8 @@ const handler = {
               response.send('The command: {} is not registed with do.bot.');
         }
 
+        console.info(`\tRunning command: ${command}`);
+
         return this.commands[command]['callback'](request, response);
     }
 };
@@ -137,7 +139,9 @@ function NumberArgumentParser(commands){
 
 const controller = {
     'post': function(request, response){
-        handler.fire(request.params.command, request, response);
+        const command = request.params.command;
+
+        handler.fire(command, request, response);
     }
 };
 
