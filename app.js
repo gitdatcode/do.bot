@@ -18,7 +18,7 @@ app.use(function(request, response, next){
 });
 
 // load all of the apps
-glob.sync('./apps/*.js').forEach(function(file){
+glob.sync('./apps/*/app.js').forEach(function(file){
     console.info('Loading app: ' + file);
     require(path.resolve(file));
 });

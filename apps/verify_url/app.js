@@ -1,4 +1,4 @@
-const event = require('../controllers/event');
+const event = require('../../controllers/event');
 
 event.handler.add('url_verification', function verifyUrl(request, response){
     const body = request.body;
