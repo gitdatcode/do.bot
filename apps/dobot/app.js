@@ -9,11 +9,13 @@ command.handler.add('dobot', function(request, response){
      */
     let all_commands = [];
 
-    Object.each(command.handler.commands, function(c){
-        const help = command.handler.commands[c]['help'];
+    for(var c in command.handler.commands){
+        if(command.handler.commands.hasOwnProperty(c)){
+            const help = command.handler.commands[c]['help'];
 
-        all_commands.push(`${c}: ${help}`);
-    });
+            all_commands.push(`${c}: ${help}`);
+        }
+    }
 
     response.status(200);
     response.send(all_commands.join('\n'));
