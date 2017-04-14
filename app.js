@@ -5,7 +5,7 @@ const express = require('express'),
     path = require('path'),
     WebClient = require('@slack/client').WebClient,
     slack_api_token = process.env.SLACK_API_TOKEN,
-    slack_web_client = new WebClient(token);
+    slack_web_client = new WebClient(slack_api_token);
 
 const app = express(),
     port = 9911;

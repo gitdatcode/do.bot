@@ -11,6 +11,8 @@ const handler = {
             'help': help
         };
 
+        console.info(`\tCommand: ${command} (${help}) has been loaded`);
+
         return this;
     },
 
@@ -75,7 +77,7 @@ function StringArgumentParser(commands){
         }else{
             try{
                 return num_parser(request, response);
-            }catch{
+            }catch(e){
                 //TODO: return 400-level error command not found
             }
         }
