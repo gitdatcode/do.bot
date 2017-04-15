@@ -27,4 +27,3 @@ const commands = {
 const command_parser = new command.StringArgumentParser(commands);
 
 command.handler.add('dobot', command_parser, help);
-

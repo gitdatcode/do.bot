@@ -59,30 +59,59 @@ function StringArgumentParser(commands){
 
     for(var command in commands){
         if(commands.hasOwnProperty(command)){
-            if(typeof command === 'number'){
-                num_commands[command] = commands[command];
+            const num_command = parseInt(command, 10);
+
+            if(typeof num_command === 'number' && num_command >= 0){
+                num_commands[num_command] = commands[command];
             }else{
                 final_commands[command] = commands[command];
             }
         }
     }
 
-    var num_parser = new NumberArgumentParser(num_commands);
+    /**
+     * Matching works by first sorting the commands by length in descending
+     * order. A list of regular expressions is created that will attempt to
+     * match the command starting with the longest command first. A match is
+     * done from the beginning of the string only (this is why longest is first)
+     *
+     * given the example commands:
+     *      command = {
+     *          'help' : function(){},
+     *          'help more' function(){}
+     *      }
+     *
+     * a request body containing "help more here" would match the "help more"
+     * command. while a body of "before help" would not match anything
+     */
+    var num_parser = new NumberArgumentParser(num_commands),
+        defined_commands = Object.keys(final_commands).sort(function(a, b){
+            return a.length - b.length || a.localeCompare(b);
+        }).reverse(),
+        search_commands = defined_commands.map(function(command){
+            var reg = new RegExp(`^${command}`);
+            reg.command = command;
+            return reg
+        });
 
+    /**
+     * parse the defined commands, if a match isnt found try parsing the
+     * using NumberArgumentParser. That will return a 400 if nothing is matched
+     */
     return function(request, response){
-        const parts = request.body.text.split(' '),
-            command = parts.shift(),
-            input = parts.join(' ');
+        const text = request.body.text;
 
-        if(command in final_commands){
-            return final_commands[command](input, request, response);
-        }else{
-            try{
-                return num_parser(request, response);
-            }catch(e){
-                //TODO: return 400-level error command not found
+        for(let i = 0, l = search_commands.length; i < l; i++){
+            let regex = search_commands[i];
+
+            if(text.match(regex)){
+                const input = text.replace(regex, '');
+
+                return final_commands[regex.command](input, request, response);
             }
-        }
+        };
+
+        return num_parser(request, response);
     };
 };
 
@@ -111,28 +140,37 @@ function StringArgumentParser(commands){
  *      based on the commands defined above, 2 would be matched. input_one
  *      would be set to 'one' while input_two would be 'two three four'
  *
- * @TODO make this work
  * @param commands ObjectLiteral<Int:Function>
  * @return function(request, response){}
  */
 function NumberArgumentParser(commands){
-    commands = commands || {}
+    commands = commands || {};
+    const nums_registered = Object.keys(commands).reverse().map(function(n){
+        return parseInt(n, 10);
+    });
 
     return function(request, response){
         const parts = request.body.text.split(' '),
-            command = parts.length,
-            nums_registered = Object.keys(commands).reverse();
+            command_number = parts.length;
 
-        nums_registered.forEach(function(num){
-            if(command === num){
-                var args = parts.slice(0, num),
-                    remainder = parts.slice(num).join(' ');
+        for(let i = 0, l = nums_registered.length; i < l; i++){
+            const num_command = nums_registered[i];
 
-                args.concat(remainder);
+            if(num_command <= command_number){
+                var args = [];
 
-                return commands[num].call(undefined, args)
+                for(let x = 0; x < num_command - 1; x++){
+                    args.push(parts.shift());
+                }
+
+                var remainder = parts.join(' '),
+                    args = args.concat([remainder, request, response]);
+
+                return commands[num_command].apply(undefined, args)
             }
-        });
+        };
+
+        return response.status(400);
     };
 };
 
