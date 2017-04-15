@@ -159,14 +159,14 @@ function NumberArgumentParser(commands){
             if(num_command <= command_number){
                 var args = [];
 
-                for(let x = 0; x < num_command - 1; x++){
+                for(let x = 0, xl = num_command - 1; x < xl; x++){
                     args.push(parts.shift());
                 }
 
                 var remainder = parts.join(' '),
                     args = args.concat([remainder, request, response]);
 
-                return commands[num_command].apply(undefined, args)
+                return commands[num_command].apply(undefined, args);
             }
         };
 
