@@ -164,7 +164,13 @@ function NumberArgumentParser(commands){
                 }
 
                 var remainder = parts.join(' '),
-                    args = args.concat([remainder, request, response]);
+                    extra_args = [request, response];
+
+                if(remainder){
+                    extra_args.unshift(remainder);
+                }
+
+                args = args.concat(extra_args);
 
                 return commands[num_command].apply(undefined, args);
             }
