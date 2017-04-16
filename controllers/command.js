@@ -150,7 +150,8 @@ function NumberArgumentParser(commands){
     });
 
     return function(request, response){
-        const parts = request.body.text.trim() ? request.body.text.trim().split(' ') : [],
+        const body = request.body.text.trim(),
+            parts = body ? body.split(' ') : [],
             command_number = parts.length;
 
         for(let i = 0, l = nums_registered.length; i < l; i++){
