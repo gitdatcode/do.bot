@@ -28,7 +28,7 @@ const welcomeMessage = (request, response) => {
   const body = request.body;
   const user = '@' + body.event.user;
 
-  request.slack.chat.postMessage( user, dmGreeting, (err, response) => {
+  request.slack.chat.postMessage( user, dmGreeting, "full", (err, response) => {
     if (err){
       console.log("(welcome.js : welcomeMessage:request.slack.chat.postMessage) Error: ", err);
     }
@@ -39,7 +39,7 @@ const welcomeMessage = (request, response) => {
   //replace 'username' in the generalGreeting with the user id
   let greeting = generalGreeting.replace(/@username/i, user);
   //post the greeting to #general
-  request.slack.chat.postMessage('general', greeting, 'none', 'true', (err, response) => {
+  request.slack.chat.postMessage('general', greeting, (err, response) => {
     if (err){
       console.log("(welcome.js : welcomeMessage:request.slack.chat.postMessage) Error: ", err);
     }
