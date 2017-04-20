@@ -71,4 +71,4 @@ When someone types `/mycommand count how many words is this?` do.bot will respon
 
 If someone typed in `/mycommand hello` do.bot would match the `1` command and respond with `one matched: hello`.
 
-> If you choose not to define a `help` command, do.bot will iterate through all of the defined commands and create a help string based on all of the sub-commands help entries.
+> If you choose not to define a `help` command, do.bot will iterate through all of the defined commands and create a help string based on all of the sub-commands help entries. This will automatically enabled `/mycommand help`
