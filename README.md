@@ -39,7 +39,7 @@ Now when someone types `/mycommand` do.bot will respond with "hi from my command
 
 do.bot allows you to define simple one-off commands like above, but it also allows you to define commands within commands.
 
-do.bot offers two classes to handle complex commands `StringArgumentParser` and `NumberArgumentParser`. `NumberArgumentParser` will allow you to define subcommands based on the number of comma-separated values that are passed with the command call. While `NumberArgumentParser` `StringArgumentParser` will match the beginning of the value passed to the command and match accordingly. `StringArgumentParser` includes an instance of `NumberArgumentParser` by default allowing both to be defined at once.
+do.bot offers two classes to handle complex commands `StringArgumentParser` and `NumberArgumentParser`. `NumberArgumentParser` will allow you to define subcommands based on the number of comma-separated values that are passed with the command call. While `StringArgumentParser` will match the beginning of the value passed to the command from slack and execute the corresponding sub-command accordingly. `StringArgumentParser` includes an instance of `NumberArgumentParser` by default allowing both to be defined at once.
 
 ```javascript
 const command = require('./controllers/command');
@@ -71,4 +71,4 @@ When someone types `/mycommand count how many words is this?` do.bot will respon
 
 If someone typed in `/mycommand hello` do.bot would match the `1` command and respond with `one matched: hello`.
 
-> If you choose not to define a `help` command, do.bot will iterate through all of the defined commands and create a help string based on all of the sub-commands help entries. This will automatically enabled `/mycommand help`
+> If you choose not to define a `help` command, do.bot will iterate through all of the defined commands and create a help string based on all of the sub-commands help entries. This will automatically enable `/mycommand help`
