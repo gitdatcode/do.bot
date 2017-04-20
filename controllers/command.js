@@ -24,7 +24,7 @@ const handler = {
 
         console.info(`\tRunning command: ${command}`);
 
-        return this.commands[command]['callback'](request, response);
+        return new this.commands[command]['callback'](request, response);
     }
 };
 
@@ -34,16 +34,18 @@ const handler = {
  * This is done when none of the string commands can be matched and it
  * determines the closest number of arguments that are less than or equal to
  * what has been defined.
+ * If you do not manually define a help command, this method will make one
+ * by looping through the defined commands and concatenating their help strings
  *
  * example slack ussage:
  *      /somecommand $argument $input
  *
  * developer usage:
  *      var commands = {
- *          'help': function(input, request, response){},
- *          'list': function(input, request, response){},
- *          1: function(input, request, response){},
- *          2: function(input_one, input_two, request, response){}
+ *          'help': {'help': 'some help', 'command': function(input, request, response){}},
+ *          'list': {'help': 'some help', 'command': function(input, request, response){}},
+ *          1: {'help': 'some help', 'command': function(input, request, response){}},
+ *          2: {'help': 'some help', 'command': function(input_one, input_two, request, response){}}
  *      };
  *
  *      var some_command = new StringArgumentParser(commands);
@@ -59,14 +61,40 @@ function StringArgumentParser(commands){
 
     for(var command in commands){
         if(commands.hasOwnProperty(command)){
-            const num_command = parseInt(command, 10);
+            if('command' in commands[command]){
+                const num_command = parseInt(command, 10);
 
-            if(typeof num_command === 'number' && num_command >= 0){
-                num_commands[num_command] = commands[command];
-            }else{
-                final_commands[command] = commands[command];
+                if(typeof num_command === 'number' && num_command >= 0){
+                    num_commands[num_command] = commands[command];
+                }else{
+                    final_commands[command] = commands[command];
+                }
             }
         }
+    }
+
+    /**
+     * add a catch-all for help if it isnt defiend
+     */
+    if(!('help' in final_commands)){
+        var helps = [];
+
+        for(var command in commands){
+            if(commands.hasOwnProperty(command)){
+                const command_help = 'help' in commands[command];
+
+                if(command_help){
+                    helps.push(commands[command].help);
+                }
+            }
+        }
+
+        final_commands['help'] = {
+            'command': function(input, request, response){
+                response.status(200);
+                response.send(helps.join('\n'));
+            }
+        };
     }
 
     /**
@@ -77,8 +105,8 @@ function StringArgumentParser(commands){
      *
      * given the example commands:
      *      command = {
-     *          'help' : function(){},
-     *          'help more' function(){}
+     *          'help' : {'help': 'some help', 'command': function(){}},
+     *          'help more' {'help': 'some help', 'command': function(){}}
      *      }
      *
      * a request body containing "help more here" would match the "help more"
@@ -107,7 +135,7 @@ function StringArgumentParser(commands){
             if(text.match(regex)){
                 const input = text.replace(regex, '');
 
-                return final_commands[regex.command](input, request, response);
+                return final_commands[regex.command].command(input, request, response)
             }
         };
 
@@ -126,8 +154,8 @@ function StringArgumentParser(commands){
  *
  * developer usage:
  *      var commands = {
- *          1: function(input, request, response){},
- *          2: function(input_one, input_two, request, response){}
+ *          1: {'help': 'some help', 'command': function(input, request, response){}},
+ *          2: {'help': 'some help', 'command': function(input_one, input_two, request, response){}}
  *      };
  *
  *      var some_command = new NumberArgumentParser(commands);
@@ -173,7 +201,7 @@ function NumberArgumentParser(commands){
 
                 args = args.concat(extra_args);
 
-                return commands[num_command].apply(undefined, args);
+                return commands[num_command].command.apply(undefined, args);
             }
         };
 
