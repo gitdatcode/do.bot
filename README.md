@@ -16,7 +16,26 @@ Also go check out the [Slack API](http://api.slack.com) for more information.
  - get help with a problem: use `/whatevercommandhere` with your question to get help from more knowledgeable members.
 
 
-## Commands
+## Adding Functionality
+
+do.bot can handle both commands and events. To add a new piece of functionality, simply add a foler with an `app.js` file that registers your command or event with do.bot into the `apps` directory.
+
+```javascript
+#/apps/verify_url/app.js
+# this the the event to handle url verifications from slack
+
+const event = require('../../controllers/event');
+
+event.handler.add('url_verification', function verifyUrl(request, response){
+    const body = request.body;
+
+    response.status(200);
+    response.set('Content-Type', 'application/x-www-form-urlencoded');
+    response.send(body.challenge);
+});
+```
+
+### Commands
 
 With do.bot you register a simple function to handle a command:
 
@@ -35,7 +54,7 @@ command.handler.add('mycommand', myCommandHandler, help);
 
 Now when someone types `/mycommand` do.bot will respond with "hi from my command", its that simple!
 
-### Complex Commands
+#### Complex Commands
 
 do.bot allows you to define simple one-off commands like above, but it also allows you to define commands within commands.
 
@@ -72,3 +91,8 @@ When someone types `/mycommand count how many words is this?` do.bot will respon
 If someone typed in `/mycommand hello` do.bot would match the `1` command and respond with `one matched: hello`.
 
 > If you choose not to define a `help` command, do.bot will iterate through all of the defined commands and create a help string based on all of the sub-commands help entries. This will automatically enable `/mycommand help`
+
+
+### Events
+
+Write about events
