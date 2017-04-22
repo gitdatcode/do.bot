@@ -1,4 +1,5 @@
-const mongo = require('../../models/mongo');
+const mongo = require('../../models/mongo')
+    findOrCreate = require('mongoose-findorcreate');
 
 const TagSchema = new mongo.mongoose.Schema({
     tag: {
