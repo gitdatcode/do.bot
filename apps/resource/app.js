@@ -116,10 +116,10 @@ function formattedResource(resource, created = false){
         }).join(', ');
 
     if(!created){
-        return `url: ${resource.url}\n\ttags: ${tags}\n\tadded by: @${user.username}`;
+        return `url: ${resource.url}\n\ttags: ${tags}\n\tadded by: <@${user.username}>`;
     }
 
-    return `New resource shared by @${user.username}\n\turl: ${resource.url}\n\ttags: ${tags}`;
+    return `New resource shared by <@${user.username}>\n\turl: ${resource.url}\n\ttags: ${tags}`;
 }
 
 const help = '/resource is used to add and list resources saved in the datCode community';
