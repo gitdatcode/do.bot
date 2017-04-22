@@ -1,6 +1,51 @@
 let mongoose = require('mongoose'),
-    findOrCreate = require('mongoose-findorcreate'),
     Schema = mongoose.Schema;
+
+/**
+ * async version of findOrCreate found in the node module mongoose-findorcreate
+ * 
+ * @param schema mongoose.Schema
+ * @param doc mongoose.model
+ * @param options object literal of key: value pairs for the doc to be searched or created with
+ * @return mongoose.model with mongoose.model.__created__ set to boolean if the model was created or not
+ */
+async function asyncFindOrCreatePlugin(schema, options){
+    schema.statics.findOrCreate = async function findOrCreate(conditions, doc, options){
+        let result = await this.findOne(conditions);
+
+        if(result){
+            if(options && options.upsert){
+                let update = self.update(conditions, doc),
+                    obj = await this.findOne(conditions);
+
+                obj.__created__ = false;
+
+                return obj;
+            }
+
+            result.__created__ = false;
+
+            return result
+        }
+
+        for(let key in doc){
+            conditions[key] = doc[key];
+        }
+
+        let keys = Object.keys(conditions);
+
+        for(let i = 0, l = keys.length; i < l; i++){
+            if(JSON.stringify(conditions[keys[i]]).indexOf('$') !== -1){
+                delete conditions[keys[i]];
+            }
+        }
+
+        let obj = new this(conditions);
+        obj.__created__ = true;
+
+        return await obj.save();
+    };
+}
 
 mongoose.Promise = global.Promise;
 let db = mongoose.connect('mongodb://localhost/dobot');
@@ -13,12 +58,14 @@ const UserSchema = new Schema({
     }
 });
 
-UserSchema.plugin(findOrCreate);
+UserSchema.plugin(asyncFindOrCreatePlugin);
 
 var User = mongoose.model('User', UserSchema);
 
 module.exports = {
+    'asyncFindOrCreatePlugin': asyncFindOrCreatePlugin,
     'db': db,
     'mongoose': mongoose,
     'User': User
 };
+

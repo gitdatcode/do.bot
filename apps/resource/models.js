@@ -1,5 +1,4 @@
-const mongo = require('../../models/mongo')
-    findOrCreate = require('mongoose-findorcreate');
+const mongo = require('../../models/mongo');
 
 const TagSchema = new mongo.mongoose.Schema({
     tag: {
@@ -9,7 +8,7 @@ const TagSchema = new mongo.mongoose.Schema({
     }
 });
 
-TagSchema.plugin(findOrCreate);
+TagSchema.plugin(mongo.asyncFindOrCreatePlugin);
 
 var Tag = mongo.mongoose.model('Tag', TagSchema);
 
@@ -21,11 +20,12 @@ const ResourceSchema = new mongo.mongoose.Schema({
     }
 });
 
-ResourceSchema.plugin(findOrCreate);
+ResourceSchema.plugin(mongo.asyncFindOrCreatePlugin);
 
 var Resource = mongo.mongoose.model('Resource', ResourceSchema);
 
-module.export = {
+module.exports = {
     'Tag': Tag,
     'Resource': Resource
 };
+

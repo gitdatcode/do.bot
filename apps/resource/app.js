@@ -1,7 +1,7 @@
 const command = require('../../controllers/command'),
     mongo = require('../../models/mongo'),
     model = require('./models');
-
+console.info('>>>>', model.Resource)
 const commands = {
     1: {
         'help': '/resource tag,tag2,tag3 will return all resources with the given tags',
@@ -11,8 +11,8 @@ const commands = {
          * match the tags that are passed in with the request.
          * If there are no matches an string stating as much will be returned
          */
-        'command': function(tags, request, response){
-            
+        'command': async function(tags, request, response){
+            console.log('tags', tags)            
         }
     },
 
@@ -28,8 +28,27 @@ const commands = {
          * It will then build the response text and send it to each datCode
          * channel that matches each tag
          */
-        'command': function(tags, link, request, response){
+        'command': async function(tags, link, request, response){
+            console.log(tags, link)
             console.log(request.body)
+            let resource = await model.Resource.findOne({'url': link});
+            console.log(resource);
+            if(resource){
+                //write formatted resource
+            }
+
+            let user_name = request.body.user_name,
+                user = await mongo.User.findOrCreate({'username': user_name}),
+                tag_models = []
+                tags = tags.split(',');
+
+            tags.forEach(async function(t, i){
+                let mod_tag = await model.Tag.findOrCreate({'tag': t});
+                tag_models.push(mod_tag);
+                console.log('TAG', mod_tag, mod_tag.__created__);
+            });
+            
+            console.log('user', user, user.__created__) 
         }
     }
 };
