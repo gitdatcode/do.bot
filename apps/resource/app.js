@@ -50,11 +50,12 @@ const commands = {
          * channel that matches each tag
          */
         'command': async function(tags, link, request, response){
-            let existing_resource = await model.Resource.findOne({'url': link});
+            let existing_resource = await model.Resource.findOne({'url': link}).populate('tags').populate('user');
 
             if(existing_resource){
                 response.status(200);
-                return response.send('already used')
+                let used = formattedResource(existing_resource);
+                return response.send(`Resource already registered: \n ${used}`);
             }
 
             tags = tags.split(',');
