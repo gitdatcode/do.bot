@@ -22,13 +22,11 @@ const generalGreeting = "!!!!!! NEW MEMBER !!!!!! Say hey to <@username>!"
   response - what we send back to Slack to confirm we received it
 */
 const welcomeMessage = (request, response) => {
-  //send a response
-  response.status(200).end();
-  //get the request body and user id
   const body = request.body;
   const user = '@' + body.event.user;
 
-  request.slack.chat.postMessage( user, dmGreeting, "full", (err, response) => {
+  // dm the new user
+  request.slack.postMessage(user, dmGreeting, "full", (err, response) => {
     if (err){
       console.log("(welcome.js : welcomeMessage:request.slack.chat.postMessage) Error: ", err);
     }
@@ -36,9 +34,10 @@ const welcomeMessage = (request, response) => {
       console.log("(welcome.js : welcomeMessage:request.slack.chat.postMessage) DM message sent: ", response);
     }
   });
-  //replace 'username' in the generalGreeting with the user id
-  let greeting = generalGreeting.replace(/@username/i, user);
+
   //post the greeting to #general
+  let greeting = generalGreeting.replace(/@username/i, user);
+
   request.slack.chat.postMessage('general', greeting, (err, response) => {
     if (err){
       console.log("(welcome.js : welcomeMessage:request.slack.chat.postMessage) Error: ", err);
@@ -47,7 +46,6 @@ const welcomeMessage = (request, response) => {
       console.log("(welcome.js : welcomeMessage:request.slack.chat.postMessage) Message sent: ", response);
     }
   });
-
 };
 
 /*

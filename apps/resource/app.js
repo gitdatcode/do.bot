@@ -88,7 +88,7 @@ const commands = {
                     request.slack.chat.postMessage(channel, text);
                 }catch(e){
                     console.error(e);
-                }            
+                }
             });
 
             // send to twitter
@@ -118,7 +118,7 @@ function formattedResource(resource, created = false){
     if(!created){
         return `url: ${resource.url}\n\ttags: ${tags}\n\tadded by: @${user.username}`;
     }
-        
+
     return `New resource shared by @${user.username}\n\turl: ${resource.url}\n\ttags: ${tags}`;
 }
 
