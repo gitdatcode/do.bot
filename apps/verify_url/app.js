@@ -1,6 +1,6 @@
 const event = require('../../controllers/event');
 
-event.handler.add('url_verification', function verifyUrl(request, response){
+event.handler.add('url_verification', async function verifyUrl(request, response){
     const body = request.body;
 
     response.status(200);

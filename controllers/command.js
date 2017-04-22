@@ -16,7 +16,7 @@ const handler = {
         return this;
     },
 
-    'fire': function(command, request, response){
+    'fire': async function(command, request, response){
         if(!(command in this.commands)){
               response.status(404);
               response.send('The command: {} is not registed with do.bot.');
@@ -24,7 +24,7 @@ const handler = {
 
         console.info(`\tRunning command: ${command}`);
 
-        return new this.commands[command]['callback'](request, response);
+        return await this.commands[command]['callback'](request, response);
     }
 };
 
@@ -90,7 +90,7 @@ function StringArgumentParser(commands){
         }
 
         final_commands['help'] = {
-            'command': function(input, request, response){
+            'command': async function(input, request, response){
                 response.status(200);
                 response.send(helps.join('\n'));
             }
@@ -126,7 +126,7 @@ function StringArgumentParser(commands){
      * parse the defined commands, if a match isnt found try parsing the
      * using NumberArgumentParser. That will return a 400 if nothing is matched
      */
-    return function(request, response){
+    return async function(request, response){
         const text = request.body.text;
 
         for(let i = 0, l = search_commands.length; i < l; i++){
@@ -135,7 +135,7 @@ function StringArgumentParser(commands){
             if(text.match(regex)){
                 const input = text.replace(regex, '');
 
-                return final_commands[regex.command].command(input, request, response)
+                return await final_commands[regex.command].command(input, request, response)
             }
         };
 
@@ -177,7 +177,7 @@ function NumberArgumentParser(commands){
         return parseInt(n, 10);
     });
 
-    return function(request, response){
+    return async function(request, response){
         const body = request.body.text.trim(),
             parts = body ? body.split(' ') : [],
             command_number = parts.length;
@@ -201,7 +201,7 @@ function NumberArgumentParser(commands){
 
                 args = args.concat(extra_args);
 
-                return commands[num_command].command.apply(undefined, args);
+                return await commands[num_command].command.apply(undefined, args);
             }
         };
 
@@ -211,10 +211,10 @@ function NumberArgumentParser(commands){
 
 
 const controller = {
-    'post': function(request, response){
+    'post': async function(request, response){
         const command = request.params.command;
 
-        handler.fire(command, request, response);
+        await handler.fire(command, request, response);
     }
 };
 

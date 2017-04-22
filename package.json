@@ -4,6 +4,8 @@
   "description": "does a bunch of stuff in the Slack group!",
   "main": "app.js",
   "scripts": {
+    "start": "node --harmony-async-await app.js",
+    "noddemon": "./node_modules/nodemon/bin/nodemon.js --harmony-async-await app.js",
     "test": "mocha -r should -R spec"
   },
   "repository": {
@@ -28,7 +30,6 @@
     "mongoose-async-class": "^0.4.3",
     "mongoose-findorcreate": "^1.0.1",
     "request": "^2.81.0",
-    "sqlite3": "^3.1.8",
     "underscore": "^1.8.3"
   },
   "devDependencies": {

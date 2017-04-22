@@ -6,7 +6,7 @@ const commands = {
     /**
      * /dobot help
      */
-    'help': function(input, request, response){
+    'help': async function(input, request, response){
         let all_commands = [];
 
         all_commands.push('List of all active do.bot commands:');
