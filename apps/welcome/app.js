@@ -3,7 +3,7 @@
   and a nice little greeting in #general so people can show love.
   author: Jer'Maine Jones, Jr. @jermaine
 */
-const event = require('../controllers/event');
+const event = require('../../controllers/event');
 
 const dmGreeting = "Welcome to the DatCode Slack group, we're glad you're here! Since you're new, just give a little hello in the #sayhello channel. Tell us \
 where you're from, maybe what you do or what you're working on, and what you look to learn or gain within the community.\n\n\
@@ -26,7 +26,7 @@ const welcomeMessage = (request, response) => {
   const user = '@' + body.event.user;
 
   // dm the new user
-  request.slack.postMessage(user, dmGreeting, "full", (err, response) => {
+  request.slack.chat.postMessage(user, dmGreeting, "full", (err, response) => {
     if (err){
       console.log("(welcome.js : welcomeMessage:request.slack.chat.postMessage) Error: ", err);
     }
