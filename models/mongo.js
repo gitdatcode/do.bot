@@ -48,7 +48,7 @@ async function asyncFindOrCreatePlugin(schema, options){
 }
 
 mongoose.Promise = global.Promise;
-let db = mongoose.connect('mongodb://localhost/dobot');
+let db = mongoose.connect('mongodb://localhost/dobot_app');
 
 const UserSchema = new Schema({
     username: {
@@ -62,10 +62,23 @@ UserSchema.plugin(asyncFindOrCreatePlugin);
 
 var User = mongoose.model('User', UserSchema);
 
+const TagSchema = new Schema({
+    tag: {
+        type: String,
+        required: true,
+        unique: true
+    }
+});
+
+TagSchema.plugin(asyncFindOrCreatePlugin);
+
+var Tag = mongoose.model('Tag', TagSchema);
+
 module.exports = {
     'asyncFindOrCreatePlugin': asyncFindOrCreatePlugin,
     'db': db,
     'mongoose': mongoose,
-    'User': User
+    'User': User,
+    'Tag': Tag
 };
 

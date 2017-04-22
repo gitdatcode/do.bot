@@ -1,10 +1,10 @@
 const command = require('../../controllers/command'),
     mongo = require('../../models/mongo'),
     model = require('./models');
-console.info('>>>>', model.Resource)
+
 const commands = {
     1: {
-        'help': '/resource tag,tag2,tag3 will return all resources with the given tags',
+        'help': '/resource tag,tag2,tag3\n\t\twill return all resources with the given tags',
 
         /**
          * This command is designed to return a list of all resources that
@@ -12,12 +12,33 @@ const commands = {
          * If there are no matches an string stating as much will be returned
          */
         'command': async function(tags, request, response){
-            console.log('tags', tags)            
+            tags = tags.split(',');
+            let content = `No resources found tagged: ${tags}`;
+            let mon_tags = await mongo.Tag.find({'tag': {'$in': tags}}),
+                tag_ids = mon_tags.map((tag) => {
+                    return tag._id;
+                });
+
+            let resources = await model.Resource
+                .find({'tags': {'$in': tag_ids}})
+                .populate('user')
+                .populate('tags');
+            let listed = resources.map((resource) => {
+                return formattedResource(resource)
+            });
+
+            response.status(200);
+
+            if(listed.length){
+                content = listed.join('\n\n');
+            }
+
+            return response.send(content);
         }
     },
 
     2: {
-        'help': '/resource tag,tag2,tag3 http://www.web.com/ will add that url with those tags',
+        'help': '/resource tag,tag2,tag3 http://www.web.com/\n\t\twill add that url with those tags',
 
         /**
          * This command should first check to see if the link already exists.
@@ -29,30 +50,78 @@ const commands = {
          * channel that matches each tag
          */
         'command': async function(tags, link, request, response){
-            console.log(tags, link)
-            console.log(request.body)
-            let resource = await model.Resource.findOne({'url': link});
-            console.log(resource);
-            if(resource){
-                //write formatted resource
+            let existing_resource = await model.Resource.findOne({'url': link});
+
+            if(existing_resource){
+                response.status(200);
+                return response.send('already used')
             }
 
-            let user_name = request.body.user_name,
+            tags = tags.split(',');
+            let resource = await (new model.Resource({'url': link})).save(),
+                channel_name = request.body.channel_name,
+                user_name = request.body.user_name,
                 user = await mongo.User.findOrCreate({'username': user_name}),
-                tag_models = []
-                tags = tags.split(',');
+                tag_models = [],
+                tag_ids = []
 
-            tags.forEach(async function(t, i){
-                let mod_tag = await model.Tag.findOrCreate({'tag': t});
-                tag_models.push(mod_tag);
-                console.log('TAG', mod_tag, mod_tag.__created__);
+            await Promise.all(tags.map(async (t) => {
+                let mon_tag = await mongo.Tag.findOrCreate({'tag': t});
+                tag_models.push(mon_tag);
+                tag_ids.push(mon_tag._id)
+            }));
+
+            resource.tags = tag_ids;
+            resource.user = user._id;
+            resource = await resource.save();
+            resource = await model.Resource.findById(resource._id).populate('tags').populate('user');
+            const text = formattedResource(resource, true);
+
+            // send to each channel that isnt channel_name
+            tags.forEach((tag) => {
+                try{
+                    console.log(`SENDING RESOURCE ${resource.url} TO CHANNEL #${tag}`)
+
+                    const channel = `#${tag}`;
+
+                    request.slack.chat.postMessage(channel, text);
+                }catch(e){
+                    console.error(e);
+                }            
             });
-            
-            console.log('user', user, user.__created__) 
+
+            // send to twitter
+
+            // write response to slack
+            const success = `Resource: ${resource.url} was successfully added! Keep sharing`;
+            response.status(200);
+
+            return response.send(success);
         }
     }
 };
 
+
+/**
+ * function used to create a resource's response text
+ *
+ * @param resource resource.models.Resource
+ * @return String 
+ */
+function formattedResource(resource, created = false){
+    let user = resource.user,
+        tags = resource.tags.map((tag) => {
+            return tag.tag;
+        }).join(', ');
+
+    if(!created){
+        return `url: ${resource.url}\n\ttags: ${tags}\n\tadded by: @${user.username}`;
+    }
+        
+    return `New resource shared by @${user.username}\n\turl: ${resource.url}\n\ttags: ${tags}`;
+}
+
 const help = '/resource is used to add and list resources saved in the datCode community';
 
 command.handler.add('resource', new command.StringArgumentParser(commands), help);
+

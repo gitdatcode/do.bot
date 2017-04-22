@@ -92,7 +92,7 @@ function StringArgumentParser(commands){
         final_commands['help'] = {
             'command': async function(input, request, response){
                 response.status(200);
-                response.send(helps.join('\n'));
+                response.send(helps.join('\n\n'));
             }
         };
     }
