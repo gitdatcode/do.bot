@@ -8,11 +8,10 @@ require('dotenv').config();
 const express = require('express'),
     bodyParser = require('body-parser'),
     request_module = require('request'),
+    utils = require('./utils'),
     glob = require('glob'),
     path = require('path'),
-    WebClient = require('@slack/client').WebClient,
-    slack_api_token = process.env.SLACK_API_TOKEN,
-    slack_web_client = new WebClient(slack_api_token);
+    slack = require('./models/slack').slack_client;
 
 const app = express(),
     port = process.env.port || 9911;
@@ -22,15 +21,17 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 app.use(function(request, response, next){
-    request.slack = slack_web_client;
+    request.slack = slack;
     request.external = request_module;
+    request.messageChannel = utils.messageChannel;
+    request.messageUser = utils.messageUser;
 
     next();
 });
 
 // load all of the apps
 glob.sync('./apps/*/app.js').forEach(function(file){
-    console.info('Loading app: ' + file);
+    console.info(`Loading app: ${file}`);
     require(path.resolve(file));
 });
 

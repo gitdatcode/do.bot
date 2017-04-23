@@ -21,7 +21,7 @@ const generalGreeting = "!!!!!! NEW MEMBER !!!!!! Say hey to <@username>!"
   request - the request sent from Slack
   response - what we send back to Slack to confirm we received it
 */
-const welcomeMessage = (request, response) => {
+const welcomeMessage = async (request, response) => {
   const body = request.body;
   const user = '@' + body.event.user;
 

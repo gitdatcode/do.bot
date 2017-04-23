@@ -11,7 +11,7 @@ const handler = {
             'help': help
         };
 
-        console.info(`\tCommand: ${command} (${help}) has been loaded`);
+        console.info(`\tCommand: ${command} (${help}) has been loaded\n`);
 
         return this;
     },
@@ -22,7 +22,7 @@ const handler = {
               response.send('The command: {} is not registed with do.bot.');
         }
 
-        console.info(`\tRunning command: ${command}`);
+        console.info(`\tRunning command: ${command}\n`);
 
         return await this.commands[command]['callback'](request, response);
     }

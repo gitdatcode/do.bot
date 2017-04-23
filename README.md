@@ -4,12 +4,26 @@
 Since we got a lot of integrations going, we thought it'd be cool to just build an app and consolidate a lot of the custom things we wanted to make.
 
 ### Requirements
- - [node](http://nodejs.org)
+ - [node](http://nodejs.org) >= 7.x -- node must be run with the `--harmony-async-await` flag
  - [express](http://expressjs.com)
  - [body-parser (to parse the JSON)](https://github.com/expressjs/body-parser)
  - [request (simplified HTTP requests)](https://github.com/request/request)
 
 Also go check out the [Slack API](http://api.slack.com) for more information.
+
+## Running
+
+To start the server simply run:
+
+```
+npm start
+```
+
+To start the server in development mode under `nodemon` simply run:
+
+```
+npm demon
+```
 
 ### Future updates
  - global resource posting by Slack command: use `/resource` with your topic to submit resources from any channel.
@@ -37,14 +51,14 @@ event.handler.add('url_verification', function verifyUrl(request, response){
 
 ### Commands
 
-With do.bot you register a simple function to handle a command:
+With do.bot you register a simple async function to handle a command:
 
 ```javascript
 const command = require('../../controllers/command');
 
 const help = 'check out my command';
 
-function myCommandHandler(request, response){
+async function myCommandHandler(request, response){
     response.status(200);
     response.send('hi from my command');
 }
@@ -68,14 +82,14 @@ const help = 'check out my command';
 const commands = {
     'count': {
         'help': '/mycommand count will count the words given to the command',
-        'command': function(input, request, response){
+        'command': async function(input, request, response){
             response.status(200);
             response.send('You passed in '+ input.split(' ').length + ' words')
         }
     },
     1: {
         'help': '/mycommand any number of args',
-        'command': function(input, request, response){
+        'command': async function(input, request, response){
             response.status(200);
             response.send('one matched: ' + input)
         }
