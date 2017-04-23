@@ -65,8 +65,10 @@ const commands = {
                 'question': question,
                 'tags': tag_ids,
                 'user': user._id,
+                'resolved': false,
                 'created_date': now
-            })).save()
+            })).save();
+            helpme = await model.Helpme.findById(helpme._id).populate('user').populate('tags');
             let message = formattedHelp(helpme);
 
             request.messageChannel(tags, message);
@@ -89,7 +91,7 @@ const commands = {
          * user who asked the question is notified
          */
         'command': async function(input, request, response){
-            let part = input.split(' '),
+            let parts = input.trim().split(' '),
                 id = parts.shift(),
                 comment = parts.join(' ');
 
@@ -106,7 +108,8 @@ const commands = {
                 return response.send(`Helpme with the id: ${id} was already resolved by ${helpme.user.username} at ${helpme.date_resolved}`);
             }
 
-            let user = await mongo.User.findOrCreate({'username': user_name}),
+            let user_name = request.body.user_name,
+                user = await mongo.User.findOrCreate({'username': user_name}),
                 now = new Date();
 
             let updated = await helpme.update({
@@ -123,7 +126,7 @@ const commands = {
             let dm = `Your helpme inquiry: "${helpme.question}" has been marked resolved by ${user.username} @ ${now}`,
                 message = `You have marked helpme: ${id} as resolved. Thank you, keep it up!`;
 
-            request.messageUser([helpme.user], dm);
+            request.messageUser([helpme.user.username], dm);
 
             response.status(200);
 
@@ -134,6 +137,11 @@ const commands = {
 
 
 function formattedHelp(helpme, resolved = false){
+    let user = helpme.user,
+        tags = helpme.tags.map((tag) => {
+            return tag.tag;
+        }).join(', ');
+
     return `${helpme.question}\n\tid: ${helpme._id}\n\ttags: ${tags}`;
 }
 
