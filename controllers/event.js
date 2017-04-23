@@ -6,31 +6,31 @@ let handler = {
             //TODO: throw error that will stop node
         }
 
-        console.info(`Event: ${event} loaded`);
+        console.info(`Loading Event: \n\t${event} loaded\n`);
 
         this.events[event] = callback;
 
         return this;
     },
 
-    'fire': function(event, request, response){
+    'fire': async function(event, request, response){
         if(!(event in this.events)){
             response.status(404);
             response.send('The event: {} is not registed with do.bot.');
             return;
         }
 
-        console.info(`Firing Event: ${event}`);
+        console.info(`Firing Event: ${event}\n`);
 
-        return this.events[event](request, response);
+        return await this.events[event](request, response);
     }
 };
 
 const controller = {
-    'post': function(request, response){
+    'post': async function(request, response){
         const body = request.body;
 
-        handler.fire(body.type, request, response);
+        return await handler.fire(body.type, request, response);
     }
 };
 

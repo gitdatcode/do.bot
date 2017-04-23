@@ -125,4 +125,3 @@ function formattedResource(resource, created = false){
 const help = '/resource is used to add and list resources saved in the datCode community';
 
 command.handler.add('resource', new command.StringArgumentParser(commands), help);
-

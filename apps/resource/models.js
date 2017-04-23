@@ -23,4 +23,3 @@ var Resource = mongo.mongoose.model('Resource', ResourceSchema);
 module.exports = {
     'Resource': Resource
 };
-
