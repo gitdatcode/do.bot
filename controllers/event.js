@@ -19,7 +19,7 @@ let handler = {
             response.send('The event: {} is not registed with do.bot.');
             return;
         }
-
+        
         console.info(`Firing Event: ${event}\n`);
 
         return await this.events[event](request, response);
@@ -30,7 +30,7 @@ const controller = {
     'post': async function(request, response){
         const body = request.body;
 
-        return await handler.fire(body.type, request, response);
+        return await handler.fire(body.event.type, request, response);
     }
 };
 
