@@ -23,7 +23,7 @@ const generalGreeting = "!!!!!! NEW MEMBER !!!!!! Say hey to <@username>!"
 */
 const welcomeMessage = async (request, response) => {
   const body = request.body;
-  const user = '@' + body.event.user;
+  const users ='@' + body.event.user.name;
 
   // dm the new user
   request.slack.chat.postMessage(user, dmGreeting, {'parse': 'full'},  (err, response) => {
@@ -46,6 +46,8 @@ const welcomeMessage = async (request, response) => {
       console.log("(welcome.js : welcomeMessage:request.slack.chat.postMessage) Message sent: ", response);
     }
   });
+
+  return response.status(200).send();
 };
 
 /*
