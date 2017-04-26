@@ -133,9 +133,9 @@ function StringArgumentParser(commands){
             let regex = search_commands[i];
 
             if(text.match(regex)){
-                const input = text.replace(regex, '');
+                const input = text.replace(regex, '').trim();
 
-                return await final_commands[regex.command].command(input, request, response)
+                return await final_commands[regex.command].command(input, request, response);
             }
         };
 

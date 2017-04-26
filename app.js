@@ -16,15 +16,34 @@ const express = require('express'),
 const app = express(),
     port = process.env.port || 9911;
 
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
 }));
+
+
+/**
+ * add some common utilities to the request object
+ */
 app.use(function(request, response, next){
     request.slack = slack;
     request.external = request_module;
     request.messageChannel = utils.messageChannel;
     request.messageUser = utils.messageUser;
+
+    next();
+});
+
+
+/**
+ * verify every reqeust aginst the token sent from the slack server
+ */
+app.use(function(request, response, next){
+    if(!env.SLACK_VERIFICATION_TOKEN || env.SLACK_VERIFICATION_TOKEN != request.token){
+        console.error(`Verification tokens do not match`);
+        return response.send(400);
+    }
 
     next();
 });
