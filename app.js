@@ -40,7 +40,9 @@ app.use(function(request, response, next){
  * verify every reqeust aginst the token sent from the slack server
  */
 app.use(function(request, response, next){
-    if(!env.SLACK_VERIFICATION_TOKEN || env.SLACK_VERIFICATION_TOKEN != request.token){
+    const token = process.env.SLACK_VERIFICATION_TOKEN;
+
+    if(!token || token != request.body.token){
         console.error(`Verification tokens do not match`);
         return response.send(400);
     }
