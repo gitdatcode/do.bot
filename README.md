@@ -32,7 +32,7 @@ npm demon
 
 ## Adding Functionality
 
-do.bot can handle both commands and events. To add a new piece of functionality, simply add a foler with an `app.js` file that registers your command or event with do.bot into the `apps` directory.
+do.bot can handle both commands and events. To add a new piece of functionality, simply add a folder with an `app.js` file that registers your command or event with do.bot into the `apps` directory.
 
 ```javascript
 #/apps/verify_url/app.js
@@ -72,7 +72,7 @@ Now when someone types `/mycommand` do.bot will respond with "hi from my command
 
 do.bot allows you to define simple one-off commands like above, but it also allows you to define commands within commands.
 
-do.bot offers two classes to handle complex commands `StringArgumentParser` and `NumberArgumentParser`. `NumberArgumentParser` will allow you to define subcommands based on the number of comma-separated values that are passed with the command call. While `StringArgumentParser` will match the beginning of the value passed to the command from slack and execute the corresponding sub-command accordingly. `StringArgumentParser` includes an instance of `NumberArgumentParser` by default allowing both to be defined at once.
+do.bot offers two classes to handle complex commands `StringArgumentParser` and `NumberArgumentParser`. `NumberArgumentParser` will allow you to define subcommands based on the number of space-separated values that are passed with the command call. While `StringArgumentParser` will match the beginning of the value passed to the command from slack and execute the corresponding sub-command accordingly. `StringArgumentParser` includes an instance of `NumberArgumentParser` by default allowing both to be defined at once.
 
 ```javascript
 const command = require('./controllers/command');
