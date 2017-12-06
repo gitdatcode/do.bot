@@ -31,7 +31,12 @@ app.use(function(request, response, next){
     request.external = request_module;
     request.messageChannel = utils.messageChannel;
     request.messageUser = utils.messageUser;
-
+    //add this field to the response header so we can handle requests from the site
+    response.set({
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': ['POST', 'GET'],
+                'Access-Control-Allow-Headers': '*'
+        });
     next();
 });
 

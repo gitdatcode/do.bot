@@ -14,7 +14,7 @@ There's also channels like #random and #nowplaying that are outside coding, just
 If you need any help, feel free to ask in the #general channel. We'll help you out!\n\
 (If you're new to slack completely, you can ask @slackbot for help; and check this out for some tips and tricks: https://www.thrillist.com/tech/nation/slack-app-hacks-shortcuts-tips-tricks )";
 
-const generalGreeting = "!!!!!! NEW MEMBER !!!!!! Say hey to <@username>!";
+const generalGreeting = "Welcome to Wakanda, <@username>! Say hey, y'all!";
 
 /*
   welcomeMessage function | called when the event 'team_join' has been received
@@ -23,7 +23,7 @@ const generalGreeting = "!!!!!! NEW MEMBER !!!!!! Say hey to <@username>!";
 */
 const welcomeMessage = async (request, response) => {
   const body = request.body;
-  const user ='@' + body.event.user.name;
+  const user ='@' + body.event.user.id;
 
   // dm the new user
   request.slack.chat.postMessage(user, dmGreeting, {'parse': 'full'},  (err, response) => {
@@ -38,7 +38,7 @@ const welcomeMessage = async (request, response) => {
   //post the greeting to #general
   let greeting = generalGreeting.replace(/@username/i, user);
 
-  request.slack.chat.postMessage('general', greeting, (err, response) => {
+  request.slack.chat.postMessage('sayhello', greeting, (err, response) => {
     if (err){
       console.log("(welcome.js : welcomeMessage:request.slack.chat.postMessage) Error: ", err);
     }
