@@ -11,15 +11,31 @@ command.handler.add(command_name, async function(request, response){
     google(search, function(err, res){
         if(err){
             var message = 'There was an error with your search'
+
+            response.send(message);
         }else{
             var result = res.links[0],
                 description = result.description,
                 link = result.href,
                 title = result.title,
-                message = `The internet says _'${search}'_ means\n*${title}*\n${description}\n_${link}_`;
-        }
+                user = request.body.user_name,
+                message = `User @${user} looked up _'${search}'_ \n*${title}*\n${description}\n ${link}`,
+                channel = '#' + request.body.channel_name;
+console.log(channel)
+            try{
+                request.slack.chat.postMessage(channel, message, function(err, r){
+                    if(err){
+                        response.send(message);
+                    }
+                        
+                    response.status(200);
+                });
+            }catch(e){
+console.log(e)
+                response.send(message);
+            }
 
-        response.status(200);
-        response.send(message);
+            response.status(200);
+        }
     });
 }, help);
