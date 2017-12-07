@@ -20,22 +20,17 @@ command.handler.add(command_name, async function(request, response){
                 title = result.title,
                 user = request.body.user_name,
                 message = `User @${user} looked up _'${search}'_ \n*${title}*\n${description}\n ${link}`,
-                channel = '#' + request.body.channel_name;
-console.log(channel)
+                channel = '#lookups';
+
             try{
                 request.slack.chat.postMessage(channel, message, function(err, r){
-                    if(err){
-                        response.send(message);
-                    }
-                        
+                    response.send(message) 
                     response.status(200);
                 });
             }catch(e){
-console.log(e)
                 response.send(message);
+                response.status(200);
             }
-
-            response.status(200);
         }
     });
 }, help);
