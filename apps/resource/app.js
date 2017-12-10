@@ -93,6 +93,7 @@ const actions = {
 
         'command': async function(tags, request, response){
             let content = await getTagsForRequest(tags, request, response);
+            content['replace_original'] = false;
             response.status(200);
 
             return response.send(content);
