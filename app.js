@@ -46,8 +46,14 @@ app.use(function(request, response, next){
  */
 app.use(function(request, response, next){
     const token = process.env.SLACK_VERIFICATION_TOKEN;
+    let request_token = request.body.token;
 
-    if(!token || token != request.body.token){
+    if('payload' in request.body){
+        let payload = JSON.parse(request.body.payload);
+        request_token = payload.token;
+    }
+
+    if(!token || token != request_token){
         console.error(`Verification tokens do not match`);
         return response.send(400);
     }
