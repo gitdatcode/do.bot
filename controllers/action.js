@@ -188,6 +188,10 @@ function NumberArgumentParser(commands){
 
         const command_number = parts.length;
 
+        if(parts.length > 1){
+            parts.shift();
+        }
+
         for(let i = 0, l = nums_registered.length; i < l; i++){
             const num_command = nums_registered[i];
 
@@ -224,7 +228,6 @@ const controller = {
             for(let i = 0, l = payload.actions.length; i < l; i++){
                 let action = payload.actions[i],
                     act = action.value.split(' ')[0];
-
                 request.payload = payload;
                 request.action = action;
 
@@ -243,3 +246,4 @@ module.exports = {
     'StringArgumentParser': StringArgumentParser,
     'NumberArgumentParser': NumberArgumentParser
 };
+
