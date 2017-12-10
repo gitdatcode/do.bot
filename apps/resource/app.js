@@ -4,16 +4,15 @@ const command = require('../../controllers/command'),
     model = require('./models');
 
 
-const colors = ['#00E8EF', '#5C03DB', '#EF005E', '#FFBD03', '#00D675'],
+let colors = ['#00E8EF', '#5C03DB', '#EF005E', '#FFBD03', '#00D675'],
     color_used = 0,
-    color_len = colors.len - 1,
+    color_len = colors.length - 1,
     next_color = function(){
         if(color_used > color_len){
             color_used = 0;
         }
 
         var color = colors[color_used];
-
         color_used += 1;
 
         return color;
@@ -80,17 +79,25 @@ const commands = {
             resource.user = user._id;
             resource = await resource.save();
             resource = await model.Resource.findById(resource._id).populate('tags').populate('user');
-            const text = formattedResource(resource, true);
+            const text = formattedResponse(tags, [resource], true);
+
+
+            if(tags.indexOf('resources') < 0){
+                tags.push('resources');
+            }
 
             // send to each channel that isnt channel_name
             tags.forEach((tag) => {
                 try{
                     console.log(`SENDING RESOURCE ${resource.url} TO CHANNEL #${tag}`)
 
-                    const channel = `#${tag}`;
+                    const channel = `#${tag}`,
+                        message = text.text,
+                        attachments = {'attachments': text.attachments};
 
-                    request.slack.chat.postMessage(channel, text);
+                    request.slack.chat.postMessage(channel, message, attachments);
                 }catch(e){
+                    console.log(`error trying to post to chan #${tag}`)
                     console.error(e);
                 }
             });
@@ -136,34 +143,39 @@ function formattedResource(resource, created = false){
                 'text': tag.tag,
                 'type': 'button',
                 'value': 'resource '+ tag.tag,
-                'color': next_color(),
             }
         });
-
-    var response = [
-        {
-            'title': 'Url',
-            'text': resource.url
-        },
+ 
+    let fields = [
         {
             'title': 'Added by',
-            'text': `<@${user.username}>`
+            'value': `<@${resource.user.username}>`,
+            'short': true,
         }
     ];
 
     if(resource.created_date){
-        response.push({
+        fields.push({
             'title': 'Date Added',
-            'text': resource.created_date.toLocaleDateString("en-US"),
+            'value': resource.created_date.toLocaleDateString("en-US"),
+            'short': true,
         })
     }
 
+    var response = [
+        {
+            'title': 'Url',
+            'text': resource.url,
+            'fields': fields,
+            'color': next_color(),
+        },
+    ];
+   
     var tag_section = {
         'title': 'tags',
         'fallback': 'tags',
         'callback_id': 'random',
         'attachment_type': 'default',
-        'color': '#3AA3E3',
         'actions': tags,
     };
 
@@ -173,7 +185,7 @@ function formattedResource(resource, created = false){
 }
 
 
-function formattedResponse(resources, created = false){
+function formattedResponse(tags, resources, created = false){
     var attachments = [];
 
     resources.forEach((resource) => {
@@ -182,7 +194,7 @@ function formattedResponse(resources, created = false){
     });
 
     return {
-        'text': created ? 'New Resource Added' : 'Resource Search Returned',
+        'text': created ? 'New Resource Added' : `Resources: ${tags}`,
         'attachments': attachments,
     };
 }
@@ -204,7 +216,7 @@ async function getTagsForRequest(tags, request, response){
     });
 
     if(resources.length){
-        content = formattedResponse(resources);
+        content = formattedResponse(tags.join(', '), resources);
     }
 
     return content;
