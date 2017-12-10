@@ -6,7 +6,7 @@ const command = require('../../controllers/command'),
 
 const colors = ['#00E8EF', '#5C03DB', '#EF005E', '#FFBD03', '#00D675'],
     color_used = 0,
-    color_len = colors.len - 1
+    color_len = colors.len - 1,
     next_color = function(){
         if(color_used > color_len){
             color_used = 0;
