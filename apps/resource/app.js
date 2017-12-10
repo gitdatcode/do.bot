@@ -60,7 +60,7 @@ const commands = {
             let existing_resource = await model.Resource.findOne({'url': link}).populate('tags').populate('user');
 
             if(existing_resource){
-                let existing = `Resource already registered search for it by typing \`/resource {tags}\``;
+                let existing = `Resource already registered search for it by typing \`/resource ${tags}\``;
 
                 response.status(200);
                 return response.send(existing);
