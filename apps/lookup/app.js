@@ -19,7 +19,7 @@ command.handler.add(command_name, async function(request, response){
                 link = result.href,
                 title = result.title,
                 user = request.body.user_name,
-                message = `User <@${user}> looked up _'${search}'_ \n*${title}*\n${description}\n ${link}`,
+                message = `User <@${user}> looked up _'${search}'_ \n*${title}*\n${description}\n ${link}\n`,
                 channel = '#lookups';
 
             try{
