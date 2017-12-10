@@ -49,6 +49,14 @@ const commands = {
          * channel that matches each tag
          */
         'command': async function(tags, link, request, response){
+            return await commands[3].command(tags, link, false, request, response);
+        }
+    },
+
+    3: {
+        'help': '/resource tag,tag2 mark.com I love this website. It really helps me be cool\n\t\twill add that url with tags and a description',
+
+        'command': function(tags, link, description, request, response){
             let existing_resource = await model.Resource.findOne({'url': link}).populate('tags').populate('user');
 
             if(existing_resource){
@@ -58,51 +66,18 @@ const commands = {
             }
 
             tags = tags.split(',');
-            let now = new Date(),
-                resource = await (new model.Resource({
-                    'url': link, 
-                    'created_date': now
-                })).save(),
-                channel_name = request.body.channel_name,
-                user_name = request.body.user_name,
-                user = await mongo.User.findOrCreate({'username': user_name}),
-                tag_models = [],
-                tag_ids = []
 
-            await Promise.all(tags.map(async (t) => {
-                let mon_tag = await mongo.Tag.findOrCreate({'tag': t});
-                tag_models.push(mon_tag);
-                tag_ids.push(mon_tag._id)
-            }));
-
-            resource.tags = tag_ids;
-            resource.user = user._id;
-            resource = await resource.save();
-            resource = await model.Resource.findById(resource._id).populate('tags').populate('user');
-            const text = formattedResponse(tags, [resource], true);
-
+            let resource_response = await addResource(tags, description, request, response);
 
             if(tags.indexOf('resources') < 0){
                 tags.push('resources');
             }
 
             // send to each channel that isnt channel_name
-            tags.forEach((tag) => {
-                try{
-                    console.log(`SENDING RESOURCE ${resource.url} TO CHANNEL #${tag}`)
+            let message = resource_response.text,
+                attachments = {'attachments': resource_response.attachments};
 
-                    const channel = `#${tag}`,
-                        message = text.text,
-                        attachments = {'attachments': text.attachments};
-
-                    request.slack.chat.postMessage(channel, message, attachments);
-                }catch(e){
-                    console.log(`error trying to post to chan #${tag}`)
-                    console.error(e);
-                }
-            });
-
-            // send to twitter
+            await notifiyChannels(tags, message, attachments, request, response)
 
             // write response to slack
             const success = `Resource: ${resource.url} was successfully added! Keep sharing`;
@@ -144,7 +119,8 @@ function formattedResource(resource, created = false){
                 'type': 'button',
                 'value': 'resource '+ tag.tag,
             }
-        });
+        }),
+        color = next_color();
  
     let fields = [
         {
@@ -167,9 +143,17 @@ function formattedResource(resource, created = false){
             'title': 'Url',
             'text': resource.url,
             'fields': fields,
-            'color': next_color(),
+            'color': color,
         },
     ];
+
+    if(resource.description){
+        response.push({
+            'title': 'Description',
+            'text': resource.description,
+            'color': color,
+        })
+    }
    
     var tag_section = {
         'title': 'tags',
@@ -199,6 +183,7 @@ function formattedResponse(tags, resources, created = false){
     };
 }
 
+
 async function getTagsForRequest(tags, request, response){
     tags = tags.split(',');
     let content = `No resources found tagged: ${tags}`;
@@ -221,6 +206,51 @@ async function getTagsForRequest(tags, request, response){
 
     return content;
 }
+
+
+async function addResource(tags, description, request, response){
+    let now = new Date(),
+        resource = await (new model.Resource({
+            'url': link, 
+            'created_date': now,
+            'description': description
+        })).save(),
+        channel_name = request.body.channel_name,
+        user_name = request.body.user_name,
+        user = await mongo.User.findOrCreate({'username': user_name}),
+        tag_models = [],
+        tag_ids = []
+
+    await Promise.all(tags.map(async (t) => {
+        let mon_tag = await mongo.Tag.findOrCreate({'tag': t});
+        tag_models.push(mon_tag);
+        tag_ids.push(mon_tag._id)
+    }));
+
+    resource.tags = tag_ids;
+    resource.user = user._id;
+    resource = await resource.save();
+    resource = await model.Resource.findById(resource._id).populate('tags').populate('user');
+
+    return formattedResponse(tags, [resource], true);
+}
+
+
+async function notifiyChannels(channels, message, attachments, request, response){
+    tags.forEach((tag) => {
+        try{
+            console.log(`SENDING RESOURCE ${resource.url} TO CHANNEL #${tag}`)
+
+            const channel = `#${tag}`;
+
+            request.slack.chat.postMessage(channel, message, attachments);
+        }catch(e){
+            console.error(`!!!!error trying to post to chan #${tag}`);
+            console.error(e);
+        }
+    });
+}
+
 
 const help = '/resource is used to add and list resources saved in the datCode community';
 

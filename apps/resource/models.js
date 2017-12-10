@@ -16,6 +16,9 @@ const ResourceSchema = new mongo.mongoose.Schema({
     },
     created_date: {
         type: Date
+    },
+    description: {
+        type: String
     }
 });
 
