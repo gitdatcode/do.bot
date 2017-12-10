@@ -182,8 +182,11 @@ function NumberArgumentParser(commands){
 
     return async function(request, response){
         const body = request.action.value.trim(),
-            parts = body ? body.split(' ') : [],
-            command_number = parts.length;
+            parts = body ? body.split(' ') : [];
+
+        parts.shift();
+
+        const command_number = parts.length;
 
         for(let i = 0, l = nums_registered.length; i < l; i++){
             const num_command = nums_registered[i];

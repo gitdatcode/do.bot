@@ -33,10 +33,10 @@ app.use(function(request, response, next){
     request.messageUser = utils.messageUser;
     //add this field to the response header so we can handle requests from the site
     response.set({
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': ['POST', 'GET'],
-                'Access-Control-Allow-Headers': '*'
-        });
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': ['POST', 'GET'],
+        'Access-Control-Allow-Headers': '*'
+    });
     next();
 });
 
@@ -45,8 +45,8 @@ app.use(function(request, response, next){
  * verify every reqeust aginst the token sent from the slack server
  */
 app.use(function(request, response, next){
-    const token = process.env.SLACK_VERIFICATION_TOKEN;
-    let request_token = request.body.token;
+    let token = process.env.SLACK_VERIFICATION_TOKEN,
+        request_token = request.body.token;
 
     if('payload' in request.body){
         let payload = JSON.parse(request.body.payload);

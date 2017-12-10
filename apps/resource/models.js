@@ -13,6 +13,9 @@ const ResourceSchema = new mongo.mongoose.Schema({
     user: {
         type: mongo.mongoose.Schema.Types.ObjectId,
         ref: 'User'
+    },
+    created_date: {
+        type: Date
     }
 });
 

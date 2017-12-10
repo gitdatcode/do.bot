@@ -15,27 +15,9 @@ const commands = {
          * If there are no matches an string stating as much will be returned
          */
         'command': async function(tags, request, response){
-            tags = tags.split(',');
-            let content = `No resources found tagged: ${tags}`;
-            let mon_tags = await mongo.Tag.find({'tag': {'$in': tags}}),
-                tag_ids = mon_tags.map((tag) => {
-                    return tag._id;
-                });
-
-            let resources = await model.Resource
-                .find({'tags': {'$in': tag_ids}})
-                .populate('user')
-                .populate('tags');
-            let listed = resources.map((resource) => {
-                return formattedResource(resource)
-            });
+            let content = await getTagsForRequest(tags, request, response);
 
             response.status(200);
-
-            if(resources.length){
-                content = formattedResponse(resources);
-            }
-
             return response.send(content);
         }
     },
@@ -62,7 +44,11 @@ const commands = {
             }
 
             tags = tags.split(',');
-            let resource = await (new model.Resource({'url': link})).save(),
+            let now = new Date(),
+                resource = await (new model.Resource({
+                    'url': link, 
+                    'created_date': now
+                })).save(),
                 channel_name = request.body.channel_name,
                 user_name = request.body.user_name,
                 user = await mongo.User.findOrCreate({'username': user_name}),
@@ -109,9 +95,10 @@ const actions = {
     1: {
         'help': 'n/a',
 
-        'command': async function(tag, request, response){
-            response.status(200);
-            return response.send('searched for: '+ tag);
+        'command': async function(tags, request, response){
+            let content = await getTagsForRequest(tags, request, response);
+
+            return response.send(content);
         }
     }
 }
@@ -131,7 +118,7 @@ function formattedResource(resource, created = false){
                 'name': 'tag',
                 'text': tag.tag,
                 'type': 'button',
-                'value': 'resource ' + tag.tag,
+                'value': 'resource '+ tag.tag,
             }
         });
 
@@ -149,6 +136,13 @@ function formattedResource(resource, created = false){
             'text': 'Some Date'
         }
     ];
+
+    if(resource.created_date){
+        response.push({
+            'title': 'Date Added',
+            'text': resource.created_date.toLocaleDateString("en-US"),
+        })
+    }
 
     var tag_section = {
         'title': 'tags',
@@ -179,8 +173,30 @@ function formattedResponse(resources, created = false){
     };
 }
 
+async function getTagsForRequest(tags, request, response){
+    tags = tags.split(',');
+    let content = `No resources found tagged: ${tags}`;
+    let mon_tags = await mongo.Tag.find({'tag': {'$in': tags}}),
+        tag_ids = mon_tags.map((tag) => {
+            return tag._id;
+        });
+
+    let resources = await model.Resource
+        .find({'tags': {'$in': tag_ids}})
+        .populate('user')
+        .populate('tags');
+    let listed = resources.map((resource) => {
+        return formattedResource(resource)
+    });
+
+    if(resources.length){
+        content = formattedResponse(resources);
+    }
+
+    return content;
+}
 
 const help = '/resource is used to add and list resources saved in the datCode community';
 
 command.handler.add('resource', new command.StringArgumentParser(commands), help);
-action.handler.add('resource', new action.NumberArgumentParser(actions), 'N/A');
+action.handler.add('resource', new action.StringArgumentParser(actions), 'N/A');
