@@ -149,7 +149,7 @@ function formattedResource(resource, created = false){
 
     response.push(url);
 
-    if(resource.description != 'false' && resource.description != ''){
+    if(resource.description && resource.description != 'false' && resource.description != ''){
         response.push({
             'title': 'Description',
             'text': resource.description,
