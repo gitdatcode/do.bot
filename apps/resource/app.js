@@ -70,7 +70,7 @@ const commands = {
             let resource_response = await addResource(tags, link, description, request, response);
 
             if(tags.indexOf('resources') < 0){
-               // tags.push('resources');
+               tags.push('resources');
             }
 
             // send to each channel that isnt channel_name
