@@ -1,6 +1,9 @@
 const command = require('../../controllers/command'),
+    action = require('../../controllers/action'),
     mongo = require('../../models/mongo'),
     model = require('./models');
+
+const colors = ['#00E8EF', '#5C03DB', '#EF005E', '#FFBD03', '#00D675'];
 
 const commands = {
     1: {
@@ -29,8 +32,8 @@ const commands = {
 
             response.status(200);
 
-            if(listed.length){
-                content = listed.join('\n\n');
+            if(resources.length){
+                content = formattedResponse(resources);
             }
 
             return response.send(content);
@@ -102,26 +105,81 @@ const commands = {
     }
 };
 
+const actions = {
+    1: {
+        'help': 'n/a',
+
+        'command': function(tag, request, response){
+            response.sataus(200);
+            return response.send('searched for: '+ tag);
+        }
+    }
+}
+
 
 /**
- * function used to create a resource's response text
+ * function used to create a resource's response text with buttons for the user
+ * to click and get responses back for more tags
  *
  * @param resource resource.models.Resource
- * @return String 
+ * @return Object 
  */
 function formattedResource(resource, created = false){
     let user = resource.user,
         tags = resource.tags.map((tag) => {
-            return tag.tag;
-        }).join(', ');
+            return {
+                'name': 'tag',
+                'text': tag.tag,
+                'type': 'button',
+                'value': tag.tag,
+            }
+        });
 
-    if(!created){
-        return `url: ${resource.url}\n\ttags: ${tags}\n\tadded by: <@${user.username}>`;
-    }
+    var response = [
+        {
+            'title': 'Url',
+            'text': resource.url
+        },
+        {
+            'title': 'Added by',
+            'text': `<@${user.username}>`
+        },
+        {
+            'title': 'Date added',
+            'text': 'Some Date'
+        }
+    ];
 
-    return `New resource shared by <@${user.username}>\n\turl: ${resource.url}\n\ttags: ${tags}`;
+    var tag_section = {
+        'title': 'tags',
+        'fallback': 'tags',
+        'callback_id': 'random',
+        'attachment_type': 'default',
+        'color': '#3AA3E3',
+        'actions': tags,
+    };
+
+    response = response.concat(tag_section);
+
+    return response;
+}
+
+
+function formattedResponse(resources, created = false){
+    var attachments = [];
+
+    resources.forEach((resource) => {
+        let res = formattedResource(resource, created);
+        attachments = attachments.concat(res);
+    });
+
+    return {
+        'text': created ? 'New Resource Added' : 'Resource Search Returned',
+        'attachments': attachments,
+    };
 }
 
 const help = '/resource is used to add and list resources saved in the datCode community';
 
 command.handler.add('resource', new command.StringArgumentParser(commands), help);
+action.handler.add('resource', new action.StringArgumentParser(actions), 'N/A');
