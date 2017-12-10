@@ -132,10 +132,6 @@ function formattedResource(resource, created = false){
         {
             'title': 'Added by',
             'text': `<@${user.username}>`
-        },
-        {
-            'title': 'Date added',
-            'text': 'Some Date'
         }
     ];
 
