@@ -3,7 +3,22 @@ const command = require('../../controllers/command'),
     mongo = require('../../models/mongo'),
     model = require('./models');
 
-const colors = ['#00E8EF', '#5C03DB', '#EF005E', '#FFBD03', '#00D675'];
+
+const colors = ['#00E8EF', '#5C03DB', '#EF005E', '#FFBD03', '#00D675'],
+    color_used = 0,
+    color_len = colors.len - 1
+    next_color = function(){
+        if(color_used > color_len){
+            color_used = 0;
+        }
+
+        var color = colors[color_used];
+
+        color_used += 1;
+
+        return color;
+    };
+
 
 const commands = {
     1: {
@@ -121,6 +136,7 @@ function formattedResource(resource, created = false){
                 'text': tag.tag,
                 'type': 'button',
                 'value': 'resource '+ tag.tag,
+                'color': next_color(),
             }
         });
 
