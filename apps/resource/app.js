@@ -60,9 +60,11 @@ const commands = {
             let existing_resource = await model.Resource.findOne({'url': link}).populate('tags').populate('user');
 
             if(existing_resource){
-                response.status(200);
                 let used = formattedResource(existing_resource);
-                return response.send(`Resource already registered: \n ${used}`);
+                used.title = 'Resource already registered';
+
+                response.status(200);
+                return response.send(used);
             }
 
             tags = tags.split(',');
