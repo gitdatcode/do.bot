@@ -49,14 +49,14 @@ const commands = {
          * channel that matches each tag
          */
         'command': async function(tags, link, request, response){
-            return await commands[3].command(tags, link, false, request, response);
+            return await commands[3].command(tags, link, '', request, response);
         }
     },
 
     3: {
         'help': '/resource tag,tag2 mark.com I love this website. It really helps me be cool\n\t\twill add that url with tags and a description',
 
-        'command': function(tags, link, description, request, response){
+        'command': async function(tags, link, description, request, response){
             let existing_resource = await model.Resource.findOne({'url': link}).populate('tags').populate('user');
 
             if(existing_resource){
@@ -67,17 +67,18 @@ const commands = {
 
             tags = tags.split(',');
 
-            let resource_response = await addResource(tags, description, request, response);
+            let resource_response = await addResource(tags, link, description, request, response);
 
             if(tags.indexOf('resources') < 0){
-                tags.push('resources');
+               // tags.push('resources');
             }
 
             // send to each channel that isnt channel_name
-            let message = resource_response.text,
-                attachments = {'attachments': resource_response.attachments};
+            let message = resource_response.response.text,
+                resource = resource_response.resource,
+                attachments = {'attachments': resource_response.response.attachments};
 
-            await notifiyChannels(tags, message, attachments, request, response)
+            await notifiyChannels(tags, message, resource, attachments, request, response);
 
             // write response to slack
             const success = `Resource: ${resource.url} was successfully added! Keep sharing`;
@@ -138,21 +139,24 @@ function formattedResource(resource, created = false){
         })
     }
 
-    var response = [
-        {
+    var url = {    
             'title': 'Url',
             'text': resource.url,
-            'fields': fields,
             'color': color,
-        },
-    ];
+        }
+        response = [];
 
-    if(resource.description){
+    response.push(url);
+
+    if(resource.description != 'false' && resource.description != ''){
         response.push({
             'title': 'Description',
             'text': resource.description,
             'color': color,
+            'fields': fields,
         })
+    }else{
+        url['fields'] = fields;
     }
    
     var tag_section = {
@@ -208,7 +212,7 @@ async function getTagsForRequest(tags, request, response){
 }
 
 
-async function addResource(tags, description, request, response){
+async function addResource(tags, link, description, request, response){
     let now = new Date(),
         resource = await (new model.Resource({
             'url': link, 
@@ -232,20 +236,23 @@ async function addResource(tags, description, request, response){
     resource = await resource.save();
     resource = await model.Resource.findById(resource._id).populate('tags').populate('user');
 
-    return formattedResponse(tags, [resource], true);
+    return {
+        'resource': resource, 
+        'response': formattedResponse(tags, [resource], true)
+    };
 }
 
 
-async function notifiyChannels(channels, message, attachments, request, response){
-    tags.forEach((tag) => {
+async function notifiyChannels(channels, message, resource, attachments, request, response){
+    channels.forEach((chan) => {
         try{
-            console.log(`SENDING RESOURCE ${resource.url} TO CHANNEL #${tag}`)
+            console.log(`SENDING RESOURCE ${resource.url} TO CHANNEL #${chan}`)
 
-            const channel = `#${tag}`;
+            const channel = `#${chan}`;
 
             request.slack.chat.postMessage(channel, message, attachments);
         }catch(e){
-            console.error(`!!!!error trying to post to chan #${tag}`);
+            console.error(`!!!!error trying to post to chan #${chan}`);
             console.error(e);
         }
     });
@@ -256,3 +263,4 @@ const help = '/resource is used to add and list resources saved in the datCode c
 
 command.handler.add('resource', new command.StringArgumentParser(commands), help);
 action.handler.add('resource', new action.StringArgumentParser(actions), 'N/A');
+
