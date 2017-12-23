@@ -46,7 +46,23 @@ function messageUser(user_list, message){
     });
 }
 
+let colors = ['#00E8EF', '#5C03DB', '#EF005E', '#FFBD03', '#00D675'],
+    color_used = 0,
+    color_len = colors.length - 1;
+
+function nextColor(){
+    if(color_used > color_len){
+        color_used = 0;
+    }
+
+    var color = colors[color_used];
+    color_used += 1;
+
+    return color;
+}
+
 module.exports = {
     'messageChannel': messageChannel,
-    'messageUser': messageUser
+    'messageUser': messageUser,
+    'nextColor': nextColor,
 }
