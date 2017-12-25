@@ -47,7 +47,7 @@ app.use(function(request, response, next){
 app.use(function(request, response, next){
     let token = process.env.SLACK_VERIFICATION_TOKEN,
         request_token = request.body.token;
-
+console.log('------------', request.originalUrl)
     if('payload' in request.body){
         let payload = JSON.parse(request.body.payload);
         request_token = payload.token;

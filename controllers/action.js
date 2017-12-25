@@ -225,13 +225,21 @@ const controller = {
         if('payload' in request.body){
             let payload = JSON.parse(request.body.payload);
 
-            for(let i = 0, l = payload.actions.length; i < l; i++){
-                let action = payload.actions[i],
-                    act = action.value.split(' ')[0];
-                request.payload = payload;
-                request.action = action;
+            if(payload.actions){
+                for(let i = 0, l = payload.actions.length; i < l; i++){
+                    let action = payload.actions[i],
+                        act = action.value.split(' ')[0];
+                    request.payload = payload;
+                    request.action = action;
 
-                await handler.fire(act, request, response);
+                    return await handler.fire(act, request, response);
+                }
+            }else if(payload.callback_id){
+                let parts = payload.callback_id.split('::');
+                request.payload = payload;
+                request.action = {'value': parts[0]};
+
+                return await handler.fire(parts[0], request, response);
             }
         }else{
             self.status(400);

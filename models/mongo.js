@@ -55,6 +55,22 @@ const UserSchema = new Schema({
         type: String,
         required: true,
         unique: true
+    },
+    energy_code: {
+        type: String
+    },
+    notification_hour: {
+        type: Number
+    },
+    notification_minute: {
+        type: Number
+    },
+    notification_ampm: {
+        type: String
+    },
+    energy_enabled: {
+        type: Boolean,
+        default: true,
     }
 });
 
