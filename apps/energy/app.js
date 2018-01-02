@@ -3,10 +3,43 @@ const command = require('../../controllers/command'),
     mongo = require('../../models/mongo'),
     utils = require('../../utils'),
     model = require('./model'),
-    uuid = require('uuid');
+    uuid = require('uuid'),
+    exec = require('child_process').execSync;
 
 
-const hydt = '/home/dobot/hydt/env/bin/python /home/dobot/hydt/hydt.py';
+const hydt = '/home/dobot/hydt/env/bin/python /home/dobot/hydt/hydt.py',
+    exe = {
+        'emoji': function(){
+            let js = exec(`${hydt} emoji`);
+
+            return JSON.parse(js);
+        },
+        'colors': function(){
+            let js = exec(`${hydt} colors`);
+
+            return JSON.parse(js);
+        },
+        'score': function(emoji){
+            let js = exec(`${hydt} score -e '${emoji}'`);
+
+            return JSON.parse(js);
+        },
+        'user_score': function(user_id, emoji, date){
+            let js = exec(`${hydt} user_score -u ${user_id} -e ${emoji} -d ${date}`);
+
+            return JSON.parse(js);
+        },
+        'user_score_range': function(user_id, start_date, end_date){
+            let js = exec(`${hydt} user_score_range -u ${user_id} -sdate ${start_date} -edate ${end_dae}`);
+
+            return JSON.parse(js);
+        },
+    };
+
+var emoji = exe.emoji(),
+    emoji_values = emoji,
+    emoji = Object.keys(emoji),
+    colors = Object.values(exe.colors());
 
 
 async function registrationForm(user_name){
@@ -139,6 +172,7 @@ const commands = {
 
             response.status(200)
             request.slack.dialog.open(JSON.stringify(content), request.body.trigger_id, function(err, other){
+                response.status(200);
                 response.write('Hey');
             });
         }
