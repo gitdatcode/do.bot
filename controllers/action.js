@@ -223,7 +223,7 @@ const controller = {
     'post': async function(request, response){
         if('payload' in request.body){
             let payload = JSON.parse(request.body.payload);
-
+console.log(payload)
             if(payload.actions){
                 for(let i = 0, l = payload.actions.length; i < l; i++){
                     let action = payload.actions[i],

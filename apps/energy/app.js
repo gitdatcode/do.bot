@@ -24,9 +24,10 @@ const hydt = '/home/dobot/hydt/env/bin/python /home/dobot/hydt/hydt.py',
 
             return JSON.parse(js);
         },
-        'user_score': function(user_id, emoji, date){
-            let js = exec(`${hydt} user_score -u ${user_id} -e ${emoji} -d ${date}`);
-
+        'user_score': function(user_id, emoji, date, notes){
+            notes = notes || '';
+            let js = exec(`${hydt} user_score -u ${user_id} -e '${emoji}' -d '${date}' -n '${notes}'`);
+console.log(`${hydt} user_score -u ${user_id} -e '${emoji}' -d '${date}'  -n '${notes}'`)
             return JSON.parse(js);
         },
         'user_score_range': function(user_id, start_date, end_date){
@@ -160,23 +161,24 @@ async function registrationForm(user_name){
 
 
 async function dailyForm(username, date){
-    let emoji_list = emjoi.join(' ');
+    let emoji_list = emoji.join('');
 
     return {
-        'title': `Record your energy for: ${date}`,
-        'callback_id': `energy::record ${username} ${date}`,
+        'title': `Record energy: ${date}`,
+        'callback_id': `energy_record::record ${username} ${date}`,
         'submit_label': 'Record',
         'elements': [
             {
-                'label': 'Please type 3(three) face emjoi that represent your day',
+                'label': 'Type 3 face emjoi',
                 'name': 'emoji',
                 'type': 'textarea',
-                'hint': 'Choose between these emoji: ${emoji_list}'
+                'hint': `Any of these: ${emoji_list}`
             },
             {
                 'label': 'Type any notes',
                 'name': 'notes',
                 'type': 'textarea',
+                'optional': true,
                 'hint': 'Completely optional'
             }
         ]
@@ -197,7 +199,7 @@ const commands = {
             response.status(200)
             request.slack.dialog.open(JSON.stringify(content), request.body.trigger_id, function(err, other){
                 response.status(200);
-                response.write('Hey');
+                response.write('');
             });
         }
     },
@@ -228,23 +230,74 @@ const actions = {
 
         'command': async function(username, date, request, response){
             console.log('***************************************')
-            console.log(username, date, request.body)
+            console.log(username, date, request.payload.trigger_id)
 
-            let content = dailyForm(username, date);
+            let content = await dailyForm(username, date);
 
             response.status(200)
-            request.slack.dialog.open(JSON.stringify(content), request.body.trigger_id, function(err, other){
+            request.slack.dialog.open(JSON.stringify(content), request.payload.trigger_id, function(err, other){
+                if(err){
+console.log(other.response_metadata)
+                    console.error(err)
+                }
                 response.status(200);
-                response.write('Hey');
+                response.write('');
             });
         }
-    }
+    },
     3: {
         'help': '',
 
-        'command': async function(record, username, date, request, response){
-            console.log('***************************************')
-            console.log(username, date)
+        'command': async function(request, response){
+            let pay = request.payload,
+                sub = pay.submission,
+                emo = sub.emoji,
+                notes = sub.notes,
+                cb = pay.callback_id.split(' '),
+                username = cb[1],
+                date = cb[2],
+                submitted_emoji = [],
+                user = await mongo.User.findOne({'username': username});
+
+            emoji.forEach((emoji) => {
+                if(emo.indexOf(emoji) > -1){
+                    submitted_emoji.push(emoji);
+                }
+            });
+
+            submitted_emoji = submitted_emoji.join(' ');
+
+            let resp = exe.user_score(user.slack_id, submitted_emoji, date, notes);
+            let color = utils.randomColor();
+            let message = {
+                'title': `Your energy for ${date}`,
+                'attachment_type': 'default',
+                'callback_id': 'someid',
+                'attachments': [
+                    {
+                        'title': '',
+                        'color': resp.data.color_shifted,
+                        'fields': [
+                            {
+                                'title': 'Score',
+                                'value': resp.data.score,
+                                'short': true
+                            },
+                            {
+                                'title': 'Color',
+                                'value': resp.data.color_shifted,
+                                'short': true
+                            }
+                        ]
+                    }
+                ]
+            }
+
+            response.status(200);
+            request.slack.chat.postMessage(user.slack_id, `Your energy for ${date}`, message, function(er, res){
+                response.status(200);
+                response.send('');
+            })
         }
     }
 };
@@ -254,4 +307,5 @@ const help = '/energy ';
 
 command.handler.add('energy', new command.StringArgumentParser(commands), help);
 action.handler.add('energy', new action.StringArgumentParser(actions), 'N/A');
+action.handler.add('energy_record', new action.StringArgumentParser({0: actions[3]}), 'N/A');
 
