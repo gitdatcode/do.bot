@@ -187,9 +187,8 @@ function NumberArgumentParser(commands){
         parts.shift();
 
         const command_number = parts.length;
-
         if(parts.length > 1){
-            parts.shift();
+            //parts.shift();
         }
 
         for(let i = 0, l = nums_registered.length; i < l; i++){

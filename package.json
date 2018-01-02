@@ -30,6 +30,7 @@
     "mongoose": "^4.9.5",
     "mongoose-async-class": "^0.4.3",
     "mongoose-findorcreate": "^1.0.1",
+    "node-time": "^0.1.0",
     "request": "^2.81.0",
     "underscore": "^1.8.3"
   },

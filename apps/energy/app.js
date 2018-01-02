@@ -192,10 +192,26 @@ const actions = {
             user.notification_hour = parseInt(submission.notification_hour, 10);
             user.notification_minute = parseInt(submission.notification_minute, 10);
             user.notification_ampm = submission.notification_ampm;
+            user.slack_id = request.payload.user.id;
 
             await user.save();
 
             return response.status(200).send('');
+        }
+    },
+    1: {
+        'help': '',
+
+        'command': async function(){
+            console.log('one argument', arguments[0])
+        }
+    },
+    2: {
+        'help': '',
+
+        'command': async function(username, date, request, response){
+            console.log('***************************************')
+            console.log(username, date)
         }
     }
 };

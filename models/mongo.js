@@ -56,6 +56,9 @@ const UserSchema = new Schema({
         required: true,
         unique: true
     },
+    slack_id: {
+        type: String,
+    },
     energy_code: {
         type: String
     },

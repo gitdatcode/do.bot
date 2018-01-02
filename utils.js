@@ -61,8 +61,13 @@ function nextColor(){
     return color;
 }
 
+function randomColor(){
+    return colors[Math.floor(Math.random() * colors.length)];
+}
+
 module.exports = {
     'messageChannel': messageChannel,
     'messageUser': messageUser,
     'nextColor': nextColor,
+    'randomColor': randomColor,
 }

@@ -5,6 +5,8 @@
 
 require('dotenv').config();
 
+process.env.TZ = 'America/New_York';
+
 const express = require('express'),
     bodyParser = require('body-parser'),
     request_module = require('request'),
