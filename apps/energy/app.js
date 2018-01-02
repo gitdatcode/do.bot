@@ -159,6 +159,31 @@ async function registrationForm(user_name){
 }
 
 
+async function dailyForm(username, date){
+    let emoji_list = emjoi.join(' ');
+
+    return {
+        'title': `Record your energy for: ${date}`,
+        'callback_id': `energy::record ${username} ${date}`,
+        'submit_label': 'Record',
+        'elements': [
+            {
+                'label': 'Please type 3(three) face emjoi that represent your day',
+                'name': 'emoji',
+                'type': 'textarea',
+                'hint': 'Choose between these emoji: ${emoji_list}'
+            },
+            {
+                'label': 'Type any notes',
+                'name': 'notes',
+                'type': 'textarea',
+                'hint': 'Completely optional'
+            }
+        ]
+    }
+}
+
+
 const commands = {
     'register': {
         'help': "/energy register -- register and we'll track your energy daily",
@@ -168,7 +193,6 @@ const commands = {
                 user_name = request.body.user_name,
                 user = await mongo.User.findOrCreate({'username': user_name}),
                 content = await registrationForm(user_name);
-
 
             response.status(200)
             request.slack.dialog.open(JSON.stringify(content), request.body.trigger_id, function(err, other){
@@ -199,17 +223,26 @@ const actions = {
             return response.status(200).send('');
         }
     },
-    1: {
-        'help': '',
-
-        'command': async function(){
-            console.log('one argument', arguments[0])
-        }
-    },
     2: {
         'help': '',
 
         'command': async function(username, date, request, response){
+            console.log('***************************************')
+            console.log(username, date, request.body)
+
+            let content = dailyForm(username, date);
+
+            response.status(200)
+            request.slack.dialog.open(JSON.stringify(content), request.body.trigger_id, function(err, other){
+                response.status(200);
+                response.write('Hey');
+            });
+        }
+    }
+    3: {
+        'help': '',
+
+        'command': async function(record, username, date, request, response){
             console.log('***************************************')
             console.log(username, date)
         }
