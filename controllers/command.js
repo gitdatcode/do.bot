@@ -212,9 +212,13 @@ function NumberArgumentParser(commands){
 
 const controller = {
     'post': async function(request, response){
-        const command = request.params.command;
-
-        await handler.fire(command, request, response);
+        try{
+            const command = request.params.command;
+console.log('>>>>>', command)
+            await handler.fire(command, request, response);
+        }catch(e){
+            console.log(e.stack);
+        }
     }
 };
 
