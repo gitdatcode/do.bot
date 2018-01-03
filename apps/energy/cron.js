@@ -13,7 +13,7 @@ const model = require('./model'),
 module.exports = {
     'cron': async function(){
         let check_minute = 0;
-
+console.log(`Checking energy for ${hour}:${minute} ${ampm}`)
         if(minute >= 45){
             check_minute = 45;
         }else if(minute >= 30){

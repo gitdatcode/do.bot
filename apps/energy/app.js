@@ -222,7 +222,8 @@ const actions = {
 
             await user.save();
 
-            return response.status(200).send('');
+            response.status(200)
+            response.send('');
         }
     },
     2: {
@@ -237,11 +238,11 @@ const actions = {
             response.status(200)
             request.slack.dialog.open(JSON.stringify(content), request.payload.trigger_id, function(err, other){
                 if(err){
-console.log(other.response_metadata)
+                    console.log(other.response_metadata)
                     console.error(err)
                 }
                 response.status(200);
-                response.write('');
+                response.send('');
             });
         }
     },
