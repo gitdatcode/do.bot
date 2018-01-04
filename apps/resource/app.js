@@ -90,18 +90,14 @@ const commands = {
     }
 };
 
-const actions = {
-    1: {
-        'help': 'n/a',
 
-        'command': async function(tags, request, response){
-            let content = await getTagsForRequest(tags, request, response);
-            content['replace_original'] = false;
-            response.status(200);
+const actions = async function(request, response){
+    let tags = request.action_value.join(''),
+        content = await getTagsForRequest(tags, request, response);
+    content['replace_original'] = false;
+    response.status(200);
 
-            return response.send(content);
-        }
-    }
+    return response.send(content);
 }
 
 
@@ -263,5 +259,6 @@ async function notifiyChannels(channels, message, resource, attachments, request
 const help = '/resource is used to add and list resources saved in the datCode community';
 
 command.handler.add('resource', new command.StringArgumentParser(commands), help);
-action.handler.add('resource', new action.StringArgumentParser(actions), 'N/A');
+//action.handler.add('resource', new action.StringArgumentParser(actions), 'N/A');
+action.handler.add('resource', actions);
 

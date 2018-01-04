@@ -48,7 +48,7 @@ console.log(`Checking energy for ${hour}:${minute} ${ampm}`)
                             'name': 'launcher',
                             'text': `Record Energy for: ${today}`,
                             'type': 'button',
-                            'value': `energy ${user.username} ${today}`
+                            'value': `daily_form ${user.username} ${today}`
                         }
                     ]
                 };
