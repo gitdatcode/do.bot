@@ -31,7 +31,7 @@ console.log(`${hydt} user_score -u ${user_id} -e '${emoji}' -d '${date}'  -n '${
             return JSON.parse(js);
         },
         'user_score_range': function(user_id, start_date, end_date){
-            let js = exec(`${hydt} user_score_range -u ${user_id} -sdate ${start_date} -edate ${end_dae}`);
+            let js = exec(`${hydt} user_score_range -u ${user_id} --sdate ${start_date} --edate ${end_date}`);
 
             return JSON.parse(js);
         },
@@ -160,11 +160,11 @@ async function registrationForm(user_name){
 }
 
 
-async function dailyForm(username, date){
+async function dailyForm(username, date, data){
     let emoji_list = emoji.join('');
 
     return {
-        'title': `Record energy: ${date}`,
+        'title': `Energy: ${date}`,
         'callback_id': `energy_record::record ${username} ${date}`,
         'submit_label': 'Record',
         'elements': [
@@ -172,13 +172,15 @@ async function dailyForm(username, date){
                 'label': 'Type 3 face emjoi',
                 'name': 'emoji',
                 'type': 'textarea',
-                'hint': `Any of these: ${emoji_list}`
+                'hint': `Any of these: ${emoji_list}`,
+                'value': data.emoji || '',
             },
             {
                 'label': 'Type any notes',
                 'name': 'notes',
                 'type': 'textarea',
                 'optional': true,
+                'value': data.notes || '',
                 'hint': 'Completely optional'
             }
         ]
@@ -203,6 +205,49 @@ const commands = {
             });
         }
     },
+
+    'disable' : {
+        'help': '/energy disable -- will disable dobot\'s energy collection',
+
+        'command': async function(disable, request, response){
+            let user_id = request.body.user_id,
+                user_name = request.body.user_name,
+                user = await mongo.User.findOrCreate({'username': user_name});
+
+            user.notificaiton_hour = -1;
+
+            await user.save();
+
+            response.status(200);
+            response.send('You have disabled dobot\'s energy collection');
+        }
+    },
+
+    1: {
+        'help': '/energy mm/dd/yyyy -- will allow you to enter or edit energy for a given day',
+
+        'command': async function(date, request, response){
+            let emoji_data = exe.user_score_range(request.body.user_id, date, date),
+                data = {};
+
+            try{
+                data = emoji_data.data[0];
+            }catch(e){
+                data = {};
+            }
+            
+            let form =  await dailyForm(request.body.user_name, date, data);
+
+            request.slack.dialog.open(JSON.stringify(form), request.body.trigger_id, function(err, other){
+                if(err){
+                    console.log(other.response_metadata)
+                    console.error(err)
+                }
+                response.status(200);
+                response.send('');
+            });
+        }
+    }
 };
 
 
