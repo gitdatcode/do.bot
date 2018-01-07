@@ -19,7 +19,59 @@ let colors = ['#00E8EF', '#5C03DB', '#EF005E', '#FFBD03', '#00D675'],
     };
 
 
+function resourceForm(data){
+    let title = data ? 'Edit Resource' : 'Add Resource';
+    data = data || {};
+
+    return {
+        'title': title,
+        'callback_id': 'manage_resource::'+ data.id || 'new',
+        'submit_label': 'Save',
+        'elements' : [
+            {
+                'type': 'text',
+                'label': 'Url',
+                'name': 'url',
+                'value': data.url || '',
+            },
+            {
+                'type': 'text',
+                'label': 'Tags',
+                'name': 'tags',
+                'value': '',
+                'hint': 'Comma,separated,tags,spaces are fine',
+            },
+            {
+                'type': 'textarea',
+                'optional': true,
+                'label': 'Description',
+                'name': 'description',
+                'value': data.description || '',
+                'hint': 'This is optional, but helpful',
+            }
+        ]
+    };
+}
+
+
+
 const commands = {
+    0: {
+        'help': '/resource\n\t\tWill trigger a dialog to add a new resource',
+
+        'command': function(request, response){
+            console.log('dialog');
+            let form = resourceForm();
+
+            response.status(200);
+
+            request.slack.dialog.open(JSON.stringify(form), request.body.trigger_id, function(err, res){
+console.log(res)
+                response.status(200);
+                response.send('');
+            });
+        }
+    },
     1: {
         'help': '/resource tag,tag2,tag3\n\t\twill return all resources with the given tags',
 
@@ -57,6 +109,7 @@ const commands = {
         'help': '/resource tag,tag2 mark.com I love this website. It really helps me be cool\n\t\twill add that url with tags and a description',
 
         'command': async function(tags, link, description, request, response){
+console.log('---', tags, link, description)
             let existing_resource = await model.Resource.findOne({'url': link}).populate('tags').populate('user');
 
             if(existing_resource){
@@ -100,6 +153,60 @@ const actions = async function(request, response){
     return response.send(content);
 }
 
+
+const manage_resource = async function(request, response){
+    console.log('!!!', request.payload);
+
+    try{
+        let submission = request.payload.submission,
+            tags = submission.tags,
+            link = submission.url,
+            description = submission.description;
+    console.log(tags, link, description)
+
+        let existing_resource = await model.Resource.findOne({'url': link}).populate('tags').populate('user');
+    console.info('--', existing_resource);
+        if(existing_resource){
+            let existing = `Resource already registered search for it by typing \`/resource ${tags}\``;
+
+            response.status(200);
+            response.send({
+                'errors': [
+                    {
+                        'name': 'url',
+                        'error': existing
+                    }
+                ]
+            });
+        }
+
+        tags = tags.split(',');
+        let resource_response = await addResource(tags, link, description, request, response);
+
+        if(tags.indexOf('resources') < 0){
+           tags.push('resources');
+        }
+
+        // send to each channel that isnt channel_name
+        let message = resource_response.response.text,
+            resource = resource_response.resource,
+            attachments = {'attachments': resource_response.response.attachments},
+            user_name = request.body.user_name || request.payload.user.name,
+            user = await mongo.User.findOrCreate({'username': user_name});
+
+        await notifiyChannels(tags, message, resource, attachments, request, response);
+
+        // write response to slack
+        const success = `Resource: ${resource.url} was successfully added! Keep sharing`;
+        response.status(200);
+
+        request.slack.chat.postMessage(user.slack_id, success, function(e, r){
+            response.status(200);
+            response.send('');
+        });
+    }catch(e){
+    }
+}
 
 /**
  * function used to create a resource's response text with buttons for the user
@@ -217,7 +324,7 @@ async function addResource(tags, link, description, request, response){
             'description': description
         })).save(),
         channel_name = request.body.channel_name,
-        user_name = request.body.user_name,
+        user_name = request.body.user_name || request.payload.user.name,
         user = await mongo.User.findOrCreate({'username': user_name}),
         tag_models = [],
         tag_ids = []
@@ -261,4 +368,4 @@ const help = '/resource is used to add and list resources saved in the datCode c
 command.handler.add('resource', new command.StringArgumentParser(commands), help);
 //action.handler.add('resource', new action.StringArgumentParser(actions), 'N/A');
 action.handler.add('resource', actions);
-
+action.handler.add('manage_resource', manage_resource);
