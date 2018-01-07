@@ -161,6 +161,7 @@ async function registrationForm(user_name){
 
 
 async function dailyForm(username, date, data){
+    data = data || {};
     let emoji_list = emoji.join('');
 
     return {
