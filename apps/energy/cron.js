@@ -38,7 +38,7 @@ console.log(`Checking energy for ${hour}:${minute} ${ampm}`)
                 console.log('user', user.id)
                 const un = `${user.slack_id}`;
                 console.log(un)
-                let today = (now.getMonth() + 1) + '/' + now.getDay() +'/'+ now.getFullYear();
+                let today = (now.getMonth() + 1) + '/' + now.getDate() +'/'+ now.getFullYear();
                 let message = {
                     "callback_id": `energy_${user.slack_id}_${today}`,
                     'color': utils.randomColor(),

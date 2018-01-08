@@ -163,7 +163,7 @@ async function registrationForm(user_name){
 async function dailyForm(username, date, data){
     data = data || {};
     let emoji_list = emoji.join('');
-
+console.log('date', date)
     return {
         'title': `Energy: ${date}`,
         'callback_id': `energy_record::record ${username} ${date}`,
