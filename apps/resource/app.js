@@ -162,10 +162,9 @@ const manage_resource = async function(request, response){
             tags = submission.tags,
             link = submission.url,
             description = submission.description;
-    console.log(tags, link, description)
 
         let existing_resource = await model.Resource.findOne({'url': link}).populate('tags').populate('user');
-    console.info('--', existing_resource);
+
         if(existing_resource){
             let existing = `Resource already registered search for it by typing \`/resource ${tags}\``;
 
