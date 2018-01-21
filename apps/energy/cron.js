@@ -74,10 +74,10 @@ return
         }
 
         /**
-         * create the weekly render check
+         * create the weekly render check mondays at 9am
          */
-        // if(minute == 0 && day == 1){
-        if(1 ==1 ){
+//        if(minute == 0 && day == 1 && hour == 9 && ampm == 'am'){
+         if(1 == 1){
             let energy_users = await mongo.User.find({
                 'notification_hour': {$gt: 0}
             });
@@ -90,10 +90,18 @@ console.log('>>>', energy_users)
 console.log(report)
 
                         let message = {
-                            
+                            'color': utils.randomColor(),
+                            'callback_id': `energy_report_${user.slack_id}_${today}`,
+                            'text': 'Your Weekly Energy Report is Ready!',
+                            'fields' : [
+                                {
+                                    'title': '',
+                                    'value': report.uri
+                                }
+                            ]        
                         };
 
-                        let z = slack.chat.postMessage(un, 'ihellow ',  function(err, response){
+                        let z = slack.chat.postMessage(un, '', {'attachments': [message]},  function(err, response){
 console.log('POSTED MESAAGE')
                             if(err){
 console.log(err)
