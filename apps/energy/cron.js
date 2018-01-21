@@ -1,6 +1,7 @@
 process.env.TZ = 'America/New_York'; 
 
 const model = require('./model'),
+    exe = require('./exe'),
     utils = require('../../utils'),
     mongo = require('../../models/mongo'),
     slack = require('../../models/slack').slack_client,
@@ -9,7 +10,8 @@ const model = require('./model'),
     ampm = now.getHours() > 12 ? 'pm' : 'am',
     minute = now.getMinutes(),
     day = now.getDay(),
-    today = (now.getMonth() + 1) + '/' + now.getDate() +'/'+ now.getFullYear();
+    today = (now.getMonth() + 1) + '/' + now.getDate() +'/'+ now.getFullYear(),
+    week = utils.getWeek(now);
 
 
 module.exports = {
@@ -40,6 +42,7 @@ module.exports = {
 
         if(users.length){
             var p = new Promise((resolved, rej) => {
+return
                 users.forEach((user) => {
                     console.log('user', user.id)
                     const un = `${user.slack_id}`;
@@ -60,13 +63,12 @@ module.exports = {
                     };
                     slack.chat.postMessage(un, '', {'attachments': [message]},  function(err, response){
                         if(err){
-                            return rej(err);
+                            rej(err)
                         }
-
-                        return resolved(response)
+                        resolved()
                     })    
                 });
-            })
+            });
 
             funcs.push(p);
         }
@@ -77,46 +79,43 @@ module.exports = {
         // if(minute == 0 && day == 1){
         if(1 ==1 ){
             let energy_users = await mongo.User.find({
-                'notification_hour' {$gt: 0}
+                'notification_hour': {$gt: 0}
             });
-
+console.log('>>>', energy_users)
             if(energy_users.length){
-                var p = new Promise(resolved, rej) => {
+                var p = new Promise((resolved, rej) => {
                     energy_users.forEach((user) => {
-                        const un = `${user.slack_id}`;
+                        const un = `${user.slack_id}`,
+                            report = exe.week_report(user.slack_id, week, now.getFullYear());
+console.log(report)
 
                         let message = {
-                            "callback_id": `energy_${user.slack_id}_${today}`,
-                            'color': utils.randomColor(),
-                            'text': `What's your energy like today. ?`,
-                            'actions': [
-                                {
-                                    'name': 'launcher',
-                                    'text': `Record Energy for: ${today}`,
-                                    'type': 'button',
-                                    'value': `daily_form ${user.username} ${today}`
-                                }
-                            ]
+                            
                         };
 
-                        slack.chat.postMessage(un, 'yo ',  function(err, response){
+                        let z = slack.chat.postMessage(un, 'ihellow ',  function(err, response){
+console.log('POSTED MESAAGE')
                             if(err){
-                                return rej(err);
+console.log(err)
+                                rej(err);
                             }
-
-                            return resolved(response)
+console.log('POSTED', un)
+                            resolved();
                         });
+console.log('zzzzzzzzz', z)
                     });
-                };
+                });
 
                 funcs.push(p);
             }
         }
 
-        return new Promise(resolved, rej){
-            return await Promise.all(funcs.map(async function(c){
-                return c();
-            }))
-        };
+        return new Promise(async (res, rej) => {
+            await Promise.all(funcs.map( async function(fn){
+                return await fn
+            })).then(function(){
+                res();
+            })
+        });
     }
 };
