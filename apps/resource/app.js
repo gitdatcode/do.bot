@@ -38,7 +38,7 @@ function resourceForm(data){
                 'type': 'text',
                 'label': 'Tags',
                 'name': 'tags',
-                'value': '',
+                'value': data.tags || '',
                 'hint': 'Comma,separated,tags,spaces are fine',
             },
             {
@@ -66,7 +66,6 @@ const commands = {
             response.status(200);
 
             request.slack.dialog.open(JSON.stringify(form), request.body.trigger_id, function(err, res){
-console.log(res)
                 response.status(200);
                 response.send('');
             });
@@ -109,7 +108,6 @@ console.log(res)
         'help': '/resource tag,tag2 mark.com I love this website. It really helps me be cool\n\t\twill add that url with tags and a description',
 
         'command': async function(tags, link, description, request, response){
-console.log('---', tags, link, description)
             let existing_resource = await model.Resource.findOne({'url': link}).populate('tags').populate('user');
 
             if(existing_resource){
@@ -119,26 +117,19 @@ console.log('---', tags, link, description)
                 return response.send(existing);
             }
 
-            tags = tags.split(',');
+            let data = {
+                    'url': link,
+                    'description': description,
+                    'tags': tags,
+                },
+                form = resourceForm(data);
 
-            let resource_response = await addResource(tags, link, description, request, response);
-
-            if(tags.indexOf('resources') < 0){
-               tags.push('resources');
-            }
-
-            // send to each channel that isnt channel_name
-            let message = resource_response.response.text,
-                resource = resource_response.resource,
-                attachments = {'attachments': resource_response.response.attachments};
-
-            await notifiyChannels(tags, message, resource, attachments, request, response);
-
-            // write response to slack
-            const success = `Resource: ${resource.url} was successfully added! Keep sharing`;
             response.status(200);
 
-            return response.send(success);
+            request.slack.dialog.open(JSON.stringify(form), request.body.trigger_id, function(err, res){
+                response.status(200);
+                response.send('');
+            });
         }
     }
 };

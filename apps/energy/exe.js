@@ -31,7 +31,7 @@ const hydt = '/home/dobot/hydt/env/bin/python /home/dobot/hydt/hydt.py',
         'week_report': function(user_id, week, year){
             let script = `${hydt} generate_week -u ${user_id} -w ${week} -y ${year}`,
                 js = exec(script);
-
+console.log(script)
             return JSON.parse(js);
         },
     };

@@ -42,7 +42,6 @@ module.exports = {
 
         if(users.length){
             var p = new Promise((resolved, rej) => {
-return
                 users.forEach((user) => {
                     console.log('user', user.id)
                     const un = `${user.slack_id}`;
@@ -76,8 +75,8 @@ return
         /**
          * create the weekly render check mondays at 9am
          */
-//        if(minute == 0 && day == 1 && hour == 9 && ampm == 'am'){
-         if(1 == 1){
+    //    if(minute == 0 && day == 1 && hour == 9 && ampm == 'am'){
+if(true){
             let energy_users = await mongo.User.find({
                 'notification_hour': {$gt: 0}
             });
