@@ -17,8 +17,8 @@ const sendToSlack = (request, response) => {
         
         //get the name and email from the request body
         let name = request.body.event.first_name + " " + request.body.event.last_name,
-            email = request.body.event.email,
-            message = `*new signup*:\n${name}\n${email}`;
+            email = request.body.event.email, how = request.body.event.how,
+            message = `*new signup*:\n${name}\n${email}\nHeard about us through ${how}`;
         //build the message
         //message = message.replace(/@name/i, name);
         //message = message.replace(/@email/i, email);
