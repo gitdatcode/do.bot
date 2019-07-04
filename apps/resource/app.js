@@ -61,7 +61,6 @@ const commands = {
         'help': '/resource\n\t\tWill trigger a dialog to add a new resource',
 
         'command': function(request, response){
-            console.log('dialog');
             let form = resourceForm();
 
             response.status(200);
@@ -88,7 +87,7 @@ const commands = {
         }
     },
 
-    2: {
+/*    2: {
         'help': '/resource tag,tag2,tag3 http://www.web.com/\n\t\twill add that url with those tags',
 
         /**
@@ -100,7 +99,7 @@ const commands = {
          * It will then build the response text and send it to each datCode
          * channel that matches each tag
          */
-        'command': async function(tags, link, request, response){
+  /*      'command': async function(tags, link, request, response){
             return await commands[3].command(tags, link, '', request, response);
         }
     },
@@ -133,6 +132,7 @@ const commands = {
             });
         }
     }
+*/
 };
 
 
@@ -147,7 +147,6 @@ const actions = async function(request, response){
 
 
 const manage_resource = async function(request, response){
-    console.log('!!!', request.payload);
 
     try{
         let submission = request.payload.submission,
@@ -271,7 +270,6 @@ function formattedResource(resource, created = false){
 
 function formattedResponse(search, resources, created = false){
     var attachments = [];
-console.log(resources)
     resources.data.forEach((resource) => {
         let res = formattedResource(resource, created);
         attachments = attachments.concat(res);
