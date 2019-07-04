@@ -14,11 +14,14 @@ const sendToSlack = (request, response) => {
 	response.append('Access-Control-Allow-Origin', 'http://www.datcode.io/');
         response.status(200).send();
 	    console.log("signup/app.js | sendToSlack: 200 response sent");
+        console.log("REQUEST BODY", request.body)
         
         //get the name and email from the request body
         let name = request.body.event.first_name + " " + request.body.event.last_name,
             email = request.body.event.email,
-            message = `*new signup*:\n${name}\n${email}`;
+	        social = request.body.event.social,
+            how = request.body.event.how,
+            message = `*new signup*:\n${name}\n${email}\n${social}\nvia: ${how}`;
         //build the message
         //message = message.replace(/@name/i, name);
         //message = message.replace(/@email/i, email);

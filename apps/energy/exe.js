@@ -4,7 +4,9 @@ const exec = require('child_process').execSync;
 const hydt = '/home/dobot/hydt/env/bin/python /home/dobot/hydt/hydt.py',
     exe = {
         'emoji': function(){
+console.log('>>>>>', `${hydt} emoji`)
             let js = exec(`${hydt} emoji`);
+
             return JSON.parse(js);
         },
         'colors': function(){

@@ -1,7 +1,8 @@
 const command = require('../../controllers/command'),
     action = require('../../controllers/action'),
     mongo = require('../../models/mongo'),
-    model = require('./models');
+    model = require('./models'),
+    exe = require('./exe');
 
 
 let colors = ['#00E8EF', '#5C03DB', '#EF005E', '#FFBD03', '#00D675'],
@@ -152,49 +153,36 @@ const manage_resource = async function(request, response){
         let submission = request.payload.submission,
             tags = submission.tags,
             link = submission.url,
-            description = submission.description;
-
-        let existing_resource = await model.Resource.findOne({'url': link}).populate('tags').populate('user');
-
-        if(existing_resource){
-            let existing = `Resource already registered search for it by typing \`/resource ${tags}\``;
-
-            response.status(200);
-            response.send({
-                'errors': [
-                    {
-                        'name': 'url',
-                        'error': existing
-                    }
-                ]
-            });
-        }
-
+            description = submission.description,
+            username = request.payload.user.name,
+            slack_id = request.payload.user.id;
+        let date = Date.now();
+        let title = '';
+        let resp = await exe.add(title, description, link, tags, date, username, slack_id); 
         tags = tags.split(',');
-        let resource_response = await addResource(tags, link, description, request, response);
+        let formatted_response = formattedResponse(tags, {data: [resp.data]}, true);
 
         if(tags.indexOf('resources') < 0){
            tags.push('resources');
         }
 
         // send to each channel that isnt channel_name
-        let message = resource_response.response.text,
-            resource = resource_response.resource,
-            attachments = {'attachments': resource_response.response.attachments},
+        let message = formatted_response.text,
+            resource = resp,
+            attachments = {'attachments': formatted_response.attachments},
             user_name = request.body.user_name || request.payload.user.name,
-            user = await mongo.User.findOrCreate({'username': user_name});
-
+            user = resp.data.user;
         await notifiyChannels(tags, message, resource, attachments, request, response);
 
         // write response to slack
-        const success = `Resource: ${resource.url} was successfully added! Keep sharing`;
+        const success = `Resource: ${resource.uri} was successfully added! Keep sharing`;
         response.status(200);
-
         request.slack.chat.postMessage(user.slack_id, success, function(e, r){
             response.status(200);
             response.send('');
         });
     }catch(e){
+        console.log('>>>>>>', e)
     }
 }
 
@@ -206,13 +194,27 @@ const manage_resource = async function(request, response){
  * @return Object 
  */
 function formattedResource(resource, created = false){
+    if(!resource.resource){
+        return []
+    }
+
+    if(!resource.tags){
+        resource.tags = [];
+    }
+
+    if(!resource.user){
+        resource.user = {
+            username: 'DATCODEUSER'
+        }
+    }
+
     let user = resource.user,
         tags = resource.tags.map((tag) => {
             return {
                 'name': 'tag',
                 'text': tag.tag,
                 'type': 'button',
-                'value': 'resource '+ tag.tag,
+                'value': 'resource #'+ tag.tag,
             }
         }),
         color = next_color();
@@ -220,32 +222,32 @@ function formattedResource(resource, created = false){
     let fields = [
         {
             'title': 'Added by',
-            'value': `<@${resource.user.username}>`,
+            'value': `${resource.user.username}`,
             'short': true,
         }
     ];
 
-    if(resource.created_date){
+    if(resource.resource.created_date){
         fields.push({
             'title': 'Date Added',
-            'value': resource.created_date.toLocaleDateString("en-US"),
+            'value': resource.resource.created_date.toLocaleDateString("en-US"),
             'short': true,
         })
     }
 
     var url = {    
             'title': 'Url',
-            'text': resource.url,
+            'text': resource.resource.uri,
             'color': color,
         }
         response = [];
 
     response.push(url);
 
-    if(resource.description && resource.description != 'false' && resource.description != ''){
+    if(resource.resource.description && resource.resource.description != 'false' && resource.resource.description != ''){
         response.push({
             'title': 'Description',
-            'text': resource.description,
+            'text': resource.resource.description,
             'color': color,
             'fields': fields,
         })
@@ -267,39 +269,27 @@ function formattedResource(resource, created = false){
 }
 
 
-function formattedResponse(tags, resources, created = false){
+function formattedResponse(search, resources, created = false){
     var attachments = [];
-
-    resources.forEach((resource) => {
+console.log(resources)
+    resources.data.forEach((resource) => {
         let res = formattedResource(resource, created);
         attachments = attachments.concat(res);
     });
 
     return {
-        'text': created ? 'New Resource Added' : `Resources: ${tags}`,
+        'text': created ? 'New Resource Added' : `Resources: ${search}`,
         'attachments': attachments,
     };
 }
 
 
-async function getTagsForRequest(tags, request, response){
-    tags = tags.split(',');
-    let content = `No resources found tagged: ${tags}`;
-    let mon_tags = await mongo.Tag.find({'tag': {'$in': tags}}),
-        tag_ids = mon_tags.map((tag) => {
-            return tag._id;
-        });
+async function getTagsForRequest(search, request, response){
+    let content = `No resources found from: ${search}`;
+    let resources = await exe.search(search);
 
-    let resources = await model.Resource
-        .find({'tags': {'$in': tag_ids}})
-        .populate('user')
-        .populate('tags');
-    let listed = resources.map((resource) => {
-        return formattedResource(resource)
-    });
-
-    if(resources.length){
-        content = formattedResponse(tags.join(', '), resources);
+    if(resources.data.length){
+        content = formattedResponse(search, resources);
     }
 
     return content;

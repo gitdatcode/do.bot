@@ -76,46 +76,46 @@ module.exports = {
          * create the weekly render check mondays at 9am
          */
     //    if(minute == 0 && day == 1 && hour == 9 && ampm == 'am'){
-if(true){
-            let energy_users = await mongo.User.find({
-                'notification_hour': {$gt: 0}
-            });
-console.log('>>>', energy_users)
-            if(energy_users.length){
-                var p = new Promise((resolved, rej) => {
-                    energy_users.forEach((user) => {
-                        const un = `${user.slack_id}`,
-                            report = exe.week_report(user.slack_id, week, now.getFullYear());
-console.log(report)
-
-                        let message = {
-                            'color': utils.randomColor(),
-                            'callback_id': `energy_report_${user.slack_id}_${today}`,
-                            'text': 'Your Weekly Energy Report is Ready!',
-                            'fields' : [
-                                {
-                                    'title': '',
-                                    'value': report.uri
-                                }
-                            ]        
-                        };
-
-                        let z = slack.chat.postMessage(un, '', {'attachments': [message]},  function(err, response){
-console.log('POSTED MESAAGE')
-                            if(err){
-console.log(err)
-                                rej(err);
-                            }
-console.log('POSTED', un)
-                            resolved();
-                        });
-console.log('zzzzzzzzz', z)
-                    });
-                });
-
-                funcs.push(p);
-            }
-        }
+//if(true){
+//            let energy_users = await mongo.User.find({
+//                'notification_hour': {$gt: 0}
+//            });
+//console.log('>>>', energy_users)
+//            if(energy_users.length){
+//                var p = new Promise((resolved, rej) => {
+//                    energy_users.forEach((user) => {
+//                        const un = `${user.slack_id}`,
+//                            report = exe.week_report(user.slack_id, week, now.getFullYear());
+//console.log(report)
+//
+//                        let message = {
+//                            'color': utils.randomColor(),
+//                            'callback_id': `energy_report_${user.slack_id}_${today}`,
+//                            'text': 'Your Weekly Energy Report is Ready!',
+//                            'fields' : [
+//                                {
+//                                    'title': '',
+//                                    'value': report.uri
+//                                }
+//                            ]        
+//                        };
+//
+//                        let z = slack.chat.postMessage(un, '', {'attachments': [message]},  function(err, response){
+//console.log('POSTED MESAAGE')
+//                            if(err){
+//console.log(err)
+//                                rej(err);
+//                            }
+//console.log('POSTED', un)
+//                            resolved();
+//                        });
+//console.log('zzzzzzzzz', z)
+//                    });
+//                });
+//
+//                funcs.push(p);
+//            }
+//        }
 
         return new Promise(async (res, rej) => {
             await Promise.all(funcs.map( async function(fn){
