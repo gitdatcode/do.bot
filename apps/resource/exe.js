@@ -11,6 +11,8 @@ const exe = {
             const search_uri = `${url}/api/resource/search?search=${search}&page=${page}`,
                 res = await fetch(search_uri),
                 json = await res.json();
+console.log(search_uri)
+console.log(json)
             return json
         }catch(e){
             console.log(e)

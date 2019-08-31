@@ -270,7 +270,7 @@ function formattedResource(resource, created = false){
 
 function formattedResponse(search, resources, created = false){
     var attachments = [];
-    resources.data.forEach((resource) => {
+    resources.data.resources.forEach((resource) => {
         let res = formattedResource(resource, created);
         attachments = attachments.concat(res);
     });
@@ -286,7 +286,7 @@ async function getTagsForRequest(search, request, response){
     let content = `No resources found from: ${search}`;
     let resources = await exe.search(search);
 
-    if(resources.data.length){
+    if(resources.data.resources.length){
         content = formattedResponse(search, resources);
     }
 
