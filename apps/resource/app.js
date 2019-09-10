@@ -44,11 +44,10 @@ function resourceForm(data){
             },
             {
                 'type': 'textarea',
-                'optional': true,
                 'label': 'Description',
                 'name': 'description',
                 'value': data.description || '',
-                'hint': 'This is optional, but helpful',
+                'hint': 'Add a useful synopsis of the resource. It will be searhable with this content.',
             }
         ]
     };
@@ -159,7 +158,12 @@ const manage_resource = async function(request, response){
         let title = '';
         let resp = await exe.add(title, description, link, tags, date, username, slack_id); 
         tags = tags.split(',');
-        let formatted_response = formattedResponse(tags, {data: [resp.data]}, true);
+        let r = {
+            data: {
+                resources: [resp.data],
+            }
+        };
+        let formatted_response = formattedResponse(tags, r, true);
 
         if(tags.indexOf('resources') < 0){
            tags.push('resources');
@@ -174,7 +178,7 @@ const manage_resource = async function(request, response){
         await notifiyChannels(tags, message, resource, attachments, request, response);
 
         // write response to slack
-        const success = `Resource: ${resource.uri} was successfully added! Keep sharing`;
+        const success = `Resource: ${resp.data.resource.uri} was successfully added! Keep sharing`;
         response.status(200);
         request.slack.chat.postMessage(user.slack_id, success, function(e, r){
             response.status(200);
