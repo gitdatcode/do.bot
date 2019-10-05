@@ -26,30 +26,35 @@ const csv_headers = [
     {
         id: 'more_hype',
         title: 'More Hype'
+    },
+    {
+        id: 'datcode_user',
+        title: 'DATCODE User'
     }
 ];
 
 function getHypeForm(data) {
-    data = data || {};
+    data = data || {id: 'new'};
 
     // allow one month before and after current month
     let months = [],
         date = new Date(),
         current = date.getMonth(),
         start = Math.max(0, current - 1), 
-        end = Math.min(11, current + 1);
+        end = Math.min(12, current + 1);
 
     for(var i = start; i < end; i++){
         months.push({
             'label': month_names[i],
-            'value': i + 1 // real month value
+            'value': i
         });
     }
 
+    const title = `Submit your HYPE!`;
     return {
         'title': title,
         'callback_id': 'manage_hype::'+ data.id || 'new',
-        'submit_label': 'Add your HYPE',
+        'submit_label': 'HYPE!',
         'elements' : [
             {
                 'type': 'text',
@@ -66,14 +71,15 @@ function getHypeForm(data) {
             },
             {
                 'type': 'textarea',
-                'label': 'Hype yourself! What achievements (large or small!), are you celebrating this month?',
+                'label': 'What achievements (lg||sm), are you celebrating?',
                 'name': 'hype',
                 'value': data.hype || '',
             },
             {
-                "label": "Can we share this across our social media (twitter, instagram, linkedin, facebook, etc)?",
+                "label": "Can we share this across our social media?",
                 "type": "select",
                 "name": "public",
+                "value": "yes",
                 "options": [
                     {
                         "label": "No",
@@ -97,7 +103,8 @@ function getHypeForm(data) {
                 "label": "Which month are you hyping?",
                 'type': 'select',
                 'name': 'month',
-                'options': months
+                'options': months,
+                'value': current
             }
         ]
     };
@@ -109,7 +116,6 @@ const commands = {
 
         'command': function(request, response) {
             let form = getHypeForm();
-
             response.status(200);
 
             request.slack.dialog.open(JSON.stringify(form), request.body.trigger_id, function(err, res){
@@ -127,13 +133,14 @@ const commands = {
 const manage_hype = async function(request, response){
     try{
         let sub = request.payload.submission,
-            month = reqest.payload.month,
+            month = parseInt(sub.month, 10),
             user_id = request.payload.user.id,
             date = new Date(),
             year = date.getFullYear();
 
+        let real_month = month + 1;
         let csv = createCsvWriter({
-            path: `${homedir}/hype-reports/${month}-${year}.csv`,
+            path: `${homedir}/hype-reports/${real_month}-${year}.csv`,
             header: csv_headers,
             append: true
         });
@@ -143,7 +150,8 @@ const manage_hype = async function(request, response){
             last_name: sub.last_name,
             public: sub.public,
             hype: sub.hype,
-            more_hype: sub.more_hype
+            more_hype: sub.more_hype,
+            datcode_user: request.payload.user.name
         }];
 
         csv.writeRecords(data).then(function(){
