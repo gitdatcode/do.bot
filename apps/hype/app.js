@@ -43,7 +43,7 @@ function getHypeForm(data) {
         start = Math.max(0, current - 1), 
         end = Math.min(12, current + 1);
 
-    for(var i = start; i < end; i++){
+    for(var i = start; i <= end; i++){
         months.push({
             'label': month_names[i],
             'value': i
