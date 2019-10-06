@@ -41,7 +41,7 @@ function getHypeForm(data) {
         date = new Date(),
         current = date.getMonth(),
         start = Math.max(0, current - 1), 
-        end = Math.min(12, current + 1);
+        end = Math.min(11, current + 1);
 
     for(var i = start; i <= end; i++){
         months.push({
