@@ -28,7 +28,7 @@
     "glob": "^7.1.1",
     "google": "^2.1.0",
     "knex": "^0.12.9",
-    "mongoose": "^4.9.5",
+    "mongoose": "^5.7.7",
     "mongoose-async-class": "^0.4.3",
     "mongoose-findorcreate": "^1.0.1",
     "node-fetch": "^2.6.0",
