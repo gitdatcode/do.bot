@@ -99,13 +99,13 @@ function getHypeForm(data) {
                 'hint': 'optional',
                 'optional': true
             },
-            {
-                "label": "Which month are you hyping?",
-                'type': 'select',
-                'name': 'month',
-                'options': months,
-                'value': current
-            }
+            // {
+            //     "label": "Which month are you hyping?",
+            //     'type': 'select',
+            //     'name': 'month',
+            //     'options': months,
+            //     'value': current
+            // }
         ]
     };
 }
@@ -133,7 +133,7 @@ const commands = {
 const manage_hype = async function(request, response){
     try{
         let sub = request.payload.submission,
-            month = parseInt(sub.month, 10),
+            month = (new Date()).getMonth(),
             user_id = request.payload.user.id,
             date = new Date(),
             year = date.getFullYear();
